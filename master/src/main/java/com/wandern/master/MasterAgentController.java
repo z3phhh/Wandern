@@ -1,6 +1,6 @@
-package com.masterRegistry;
+package com.wandern.master;
 
-import com.serviceAgent.ServiceInfo;
+import com.wandern.agent.ServiceInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

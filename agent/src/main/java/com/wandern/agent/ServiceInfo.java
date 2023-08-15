@@ -1,4 +1,4 @@
-package com.serviceAgent;
+package com.wandern.agent;
 
 import lombok.Data;
 

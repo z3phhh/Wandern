@@ -1,11 +1,11 @@
-package com.testServiceApplication;
+package com.wandern.master;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TestServiceApplication {
+public class MasterAgentApplication {
     public static void main(String[] args) {
-        SpringApplication.run(TestServiceApplication.class, args);
+        SpringApplication.run(MasterAgentApplication.class, args);
     }
 }

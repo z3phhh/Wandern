@@ -1,11 +1,11 @@
-package com.masterRegistry;
+package com.wandern.manager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MasterAgentApplication {
+public class TestServiceApplication {
     public static void main(String[] args) {
-        SpringApplication.run(MasterAgentApplication.class, args);
+        SpringApplication.run(TestServiceApplication.class, args);
     }
 }
