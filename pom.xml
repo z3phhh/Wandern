@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.mycompany</groupId>
-    <artifactId>ServiceRegistryAndHealthCheck</artifactId>
+    <artifactId>Wandern</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>MasterRegistry</module>
-        <module>ServiceAgent</module>
-        <module>TestServiceApplication</module>
+        <module>master</module>
+        <module>agent</module>
+        <module>manager</module>
     </modules>
 
     <properties>

@@ -5,18 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.mycompany</groupId>
-        <artifactId>ServiceRegistryAndHealthCheck</artifactId>
+        <artifactId>Wandern</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.testServiceApplication</groupId>
-    <artifactId>TestServiceApplication</artifactId>
-
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+    <groupId>com.serviceAgent</groupId>
+    <artifactId>agent</artifactId>
 
     <dependencies>
         <dependency>
@@ -24,10 +18,8 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.serviceAgent</groupId>
-            <artifactId>ServiceAgent</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
     </dependencies>
 
