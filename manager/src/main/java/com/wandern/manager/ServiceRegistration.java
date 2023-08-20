@@ -32,7 +32,8 @@ public class ServiceRegistration {
     @PostConstruct
     public void register() {
         ServiceInfo serviceInfo = new ServiceInfo();
-        serviceInfo.setName("TestService");
+        serviceInfo.setSystem("Manager");
+        serviceInfo.setDeploymentId("v1.0.0");
         serviceInfo.setAddress("localhost");
         serviceInfo.setPort(Integer.parseInt(environment.getProperty("server.port")));
         serviceInfo.setHealthEndpoint("/health");

@@ -12,6 +12,7 @@
         <module>master</module>
         <module>agent</module>
         <module>manager</module>
+        <module>arm</module>
     </modules>
 
     <properties>
