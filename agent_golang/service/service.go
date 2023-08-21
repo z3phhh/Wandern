@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"time"
 	"fmt"
+
+	"io/ioutil"//remove this later
 )
 
 
@@ -136,14 +138,37 @@ func updateLocalTopology() {
 
 	defer resp.Body.Close()
 
+	// Read the entire response body into a byte slice
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		log.Println("Error reading response body:", err)
+		return
+	}
+
+	// Convert the byte slice to a string and log it
+	//log.Println("Raw Response Body:", string(bodyBytes))
+
+
 	var responseBody map[string]model.ServiceInfo
-	if err = json.NewDecoder(resp.Body).Decode(&responseBody); err != nil {
+	if err = json.Unmarshal(bodyBytes, &responseBody); err != nil {
 		log.Println("Error decoding response:", err)
 		return
 	}
 
+	// Compare with existing topology and log changes in balancing state
+	for key, updatedService := range responseBody {
+		currentService, exists := localTopology[key]
+		if exists && currentService.IsBalancingEnabled != updatedService.IsBalancingEnabled {
+			log.Printf("Balancing state for service %s changed to %v", key, updatedService.IsBalancingEnabled)
+		}
+	}
+
+
 	// Update the local topology with the fetched data.
 	localTopology = responseBody
+
+	//log.Printf("Updated Local Topology: %+v\n", localTopology)
+
 	log.Println("Local topology updated successfully")
 }
 
