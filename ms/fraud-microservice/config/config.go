@@ -11,6 +11,7 @@ type Config struct {
 	User     string `json:"user"`
 	Password string `json:"password"`
 	Dbname   string `json:"dbname"`
+	AgentEndpoint string `json:"agent_endpoint"`
 }
 
 func Load(filename string) (*Config, error) {
