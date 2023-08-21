@@ -14,12 +14,12 @@ import (
 const configFileName = "config.json"
 
 type ServiceInfo struct {
-	System             string `json:"system"`
-	DeploymentID       string `json:"deploymentId"`
-	Address            string `json:"address"`
-	Port               int    `json:"port"`
-	HealthEndpoint     string `json:"healthEndpoint"`
-	IsBalancingEnabled bool   `json:"isBalancingEnabled"`
+	System              string `json:"system"`
+	DeploymentID        string `json:"deploymentId"`
+	Address             string `json:"address"`
+	Port                int    `json:"port"`
+	HealthEndpoint      string `json:"healthEndpoint"`
+	IsBalancingEnabled  bool   `json:"balancingEnabled"`
 }
 
 func RegisterWithAgent(agentEndpoint string, serviceInfo ServiceInfo) error {
