@@ -33,3 +33,8 @@ func CheckUserHandler(db *sql.DB) http.HandlerFunc {
 		json.NewEncoder(w).Encode(response)
 	}
 }
+
+func HealthCheckHandler(w http.ResponseWriter, r *http.Request) {
+    w.WriteHeader(http.StatusOK)
+    w.Write([]byte("Healthy"))
+}
