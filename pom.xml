@@ -11,8 +11,11 @@
     <modules>
         <module>master</module>
         <module>agent</module>
-        <module>manager</module>
+        <module>test-registry</module>
         <module>arm</module>
+        <module>service-register-starter</module>
+        <module>hello-starter</module>
+        <module>test2</module>
     </modules>
 
     <properties>
