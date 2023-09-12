@@ -1,4 +1,4 @@
-package com.wandern.master;
+package com.wandern.clients.master;
 
 public record MetricsDTO(
     double systemLoad,

@@ -1,11 +1,11 @@
-package com.wandern.arm;
+package com.wandern.test1;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ArmApplication {
+public class Main {
     public static void main(String[] args) {
-        SpringApplication.run(ArmApplication.class, args);
+        SpringApplication.run(Main.class, args);
     }
 }

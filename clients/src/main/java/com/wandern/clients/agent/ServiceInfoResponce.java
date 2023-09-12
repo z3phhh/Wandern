@@ -1,6 +1,6 @@
-package com.wandern.agent.registration;
+package com.wandern.clients.agent;
 
-public record ServiceInfoDTO(
+public record ServiceInfoResponce(
     String deploymentId,
     String system,
     String serviceUrl,

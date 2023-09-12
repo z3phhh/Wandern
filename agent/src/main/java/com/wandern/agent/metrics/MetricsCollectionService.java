@@ -2,6 +2,7 @@ package com.wandern.agent.metrics;
 
 import com.wandern.agent.registration.RegisteredService;
 import com.wandern.agent.registration.RegisteredServiceRepository;
+import com.wandern.clients.agent.MetricsRequest;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class MetricsCollectionService {
             try {
                 logger.info("Requesting metrics from service: {}", service.getServiceUrl());
 
-                MetricsDTO metrics = restTemplate.getForObject(service.getServiceUrl() + "/metrics", MetricsDTO.class);
+                MetricsRequest metrics = restTemplate.getForObject(service.getServiceUrl() + "/metrics", MetricsRequest.class);
 
                 logger.info("Received metrics from service {}: {}", service.getServiceUrl(), metrics);
 

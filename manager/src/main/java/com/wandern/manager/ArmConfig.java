@@ -1,4 +1,4 @@
-package com.wandern.arm;
+package com.wandern.manager;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

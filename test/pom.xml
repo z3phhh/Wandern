@@ -9,19 +9,20 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.wandern.arm</groupId>
-    <artifactId>arm</artifactId>
+    <groupId>com.wandern.test1</groupId>
+    <artifactId>test</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.serviceAgent</groupId>
-            <artifactId>agent</artifactId>
+            <groupId>com.wandern.serviceregisterstarter</groupId>
+            <artifactId>service-register-starter</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 
