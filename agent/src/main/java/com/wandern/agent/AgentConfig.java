@@ -21,7 +21,4 @@ public class AgentConfig {
         return masterServiceUrl;
     }
 
-    public String getMasterServiceUrl() {
-        return masterServiceUrl;
-    }
 }

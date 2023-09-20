@@ -1,44 +1,42 @@
 package com.wandern.master;
 
+import com.wandern.clients.MetricsDTO;
+import com.wandern.clients.ServiceInfoDTO;
+import com.wandern.master.entity.MetricsEntity;
+import com.wandern.master.entity.RegisteredService;
+import com.wandern.master.repository.MetricsRepository;
+import com.wandern.master.repository.RegisteredServiceRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class MasterService {
 
-    // Возможно, у вас есть репозиторий для сохранения ServiceInfo в базе данных
-    private final ServiceInfoRepository serviceInfoRepository;
+    private static final Logger logger = LoggerFactory.getLogger(MasterService.class);
+
+    private final RegisteredServiceRepository registeredServiceRepository;
     private final MetricsRepository metricsRepository;
+    private final ServiceMapper serviceMapper;
 
-    public void registerService(ServiceInfoDTO serviceInfoDto) {
-        ServiceInfo serviceInfo = convertDtoToEntity(serviceInfoDto);
-        serviceInfoRepository.save(serviceInfo);
+    public void registerService(ServiceInfoDTO serviceInfoDTO) {
+        logger.info("Original ServiceInfoData: {}", serviceInfoDTO);
+        RegisteredService registeredService = serviceMapper.toEntity(serviceInfoDTO);
+        logger.info("Mapped to RegisteredService entity: {}", registeredService);
+
+        registeredServiceRepository.save(registeredService);
+
+        logger.info("Service registered successfully with ID: {}", registeredService.getDeploymentId());
     }
 
-    public void collectMetrics(MetricsDTO metricsDto) {
-        Metrics metrics = convertDtoToMetricsEntity(metricsDto);
-        metricsRepository.save(metrics);
-    }
+    public void saveMetrics(MetricsDTO metricsDTO) {
+        logger.info("Received metrics: {}", metricsDTO);
+        MetricsEntity metricsEntity = serviceMapper.toEntity(metricsDTO);
+        logger.info("Mapped to MetricsEntity: {}", metricsEntity);
 
-    private ServiceInfo convertDtoToEntity(ServiceInfoDTO dto) {
-        ServiceInfo serviceInfo = new ServiceInfo();
-        serviceInfo.setDeploymentId(dto.deploymentId());
-        serviceInfo.setSystem(dto.system());
-        serviceInfo.setServiceUrl(dto.serviceUrl());
-        serviceInfo.setPort(dto.port());
-        // Заполните другие поля, если они есть
-        return serviceInfo;
-    }
-
-    private Metrics convertDtoToMetricsEntity(MetricsDTO dto) {
-        Metrics metrics = new Metrics();
-        metrics.setSystemLoad(dto.systemLoad());
-        metrics.setJvmCpuLoad(dto.jvmCpuLoad());
-        metrics.setUsedMemory(dto.usedMemory());
-        metrics.setFreeMemory(dto.freeMemory());
-        metrics.setTotalThreads(dto.totalThreads());
-        // Заполните другие поля, если они есть
-        return metrics;
+        metricsRepository.save(metricsEntity);
+        logger.info("Metrics saved successfully with ID: {}", metricsEntity.getId());
     }
 }

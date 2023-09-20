@@ -1,5 +1,8 @@
 server:
+  servlet:
+    context-path: /master
   port: 8080
+
 spring:
   application:
     name: master
