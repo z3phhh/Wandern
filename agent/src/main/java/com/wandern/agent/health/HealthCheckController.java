@@ -22,13 +22,18 @@ public class HealthCheckController {
     private final HealthCheckAgent healthCheckAgent;
 //    private final Map<ServiceInfoDTO, Status> serviceStatuses = new ConcurrentHashMap<>();
 
-
     @GetMapping
     public ResponseEntity<Map<String, HealthStatus>> getHealthStatus() {
         return ResponseEntity.ok(healthCheckAggregator.aggregateStatus());
     }
 
-/*    @GetMapping("/schedulers-status")
+    // working!
+    @GetMapping("/services-status")
+    public ResponseEntity<Map<String, Status>> getServicesStatus() {
+        return ResponseEntity.ok(healthCheckAgent.getServiceStatuses());
+    }
+
+    /*    @GetMapping("/schedulers-status")
     public ResponseEntity<Map<String, Boolean>> getSchedulersStatus() {
         return ResponseEntity.ok(healthCheckAgent.getSchedulersStatus());
     }
@@ -37,10 +42,4 @@ public class HealthCheckController {
     public ResponseEntity<Map<String, Boolean>> getTrackedServicesStatus() {
         return ResponseEntity.ok(healthCheckAgent.getSchedulersStatus());
     }*/
-
-    // working!
-    @GetMapping("/services-status")
-    public ResponseEntity<Map<String, Status>> getServicesStatus() {
-        return ResponseEntity.ok(healthCheckAgent.getServiceStatuses());
-    }
 }

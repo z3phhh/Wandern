@@ -76,7 +76,7 @@ public class HealthCheckService {
 
     private void handleServiceDown(ServiceInfoDTO service) {
         logger.warn("Handling DOWN service {}", service.deploymentId());
-        int maxAttempts = 3;
+        int maxAttempts = 100;
         long delay = 2000; // начальная задержка в 2 секунды
 
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {

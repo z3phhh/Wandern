@@ -9,5 +9,6 @@ import java.util.Optional;
 @Repository
 public interface RegisteredServiceRepository extends JpaRepository<RegisteredService, Long> {
     Optional<RegisteredService> findByDeploymentId(String deploymentId);
+    void deleteByDeploymentId(String deploymentId);
 
 }

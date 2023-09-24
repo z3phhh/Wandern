@@ -1,5 +1,6 @@
 package com.wandern.agent.health;
 
+import com.wandern.clients.ServiceStatusDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,10 +36,4 @@ public class HealthStatusSender {
         }
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class ServiceStatusDTO {
-        private String deploymentId;
-        private String status;
-    }
 }
