@@ -1,8 +1,10 @@
 package com.wandern.agent.health;
 
 import com.wandern.clients.ServiceInfoDTO;
-import com.wandern.serviceregistrystarter.health.HealthStatus;
+import com.wandern.starter.health.HealthStatus;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -20,12 +22,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class HealthCheckAgent {
 
+    private final Logger logger = LoggerFactory.getLogger(HealthCheckAgent.class);
     private final Map<ServiceInfoDTO, ScheduledExecutorService> serviceSchedulers = new ConcurrentHashMap<>();
-//    private final HealthCheckService healthCheckService;
     private final Map<ServiceInfoDTO, Status> serviceStatuses = new ConcurrentHashMap<>();
     private final RestTemplate restTemplate = new RestTemplate();
     private final HealthStatusSender healthStatusSender;
-//    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(10); // предположим, что у нас может быть до 10 сервисов
 
     public void registerService(ServiceInfoDTO serviceInfoDTO) {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
@@ -36,6 +37,40 @@ public class HealthCheckAgent {
         }, 0, 30, TimeUnit.SECONDS);
         serviceSchedulers.put(serviceInfoDTO, scheduler);
     }
+
+/*    private Status checkServiceHealth(ServiceInfoDTO service) {
+        String healthEndpoint = service.serviceUrl() + service.contextPath() + "/actuator/health";
+        int maxAttempts = 100;
+        int attempt = 1;
+        int delay = 1000; // начальная задержка в миллисекундах (1 секунда)
+
+        while (attempt <= maxAttempts) {
+            try {
+                ResponseEntity<HealthStatus> response = restTemplate.getForEntity(healthEndpoint, HealthStatus.class);
+                Status status = Objects.requireNonNull(response.getBody()).status();
+                if (status != Status.DOWN) {
+                    return status;
+                }
+            } catch (Exception e) {
+                // + log
+            }
+
+            if (attempt < maxAttempts) {
+                logger.warn("Attempt {} failed. Retrying in {} seconds...", attempt, delay / 1000);
+                try {
+                    Thread.sleep(delay);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    return Status.DOWN;
+                }
+                delay *= 2; // удваиваем задержку
+            }
+            attempt++;
+        }
+
+        logger.error("All attempts to check the health of service {} have failed.", service.deploymentId());
+        return Status.DOWN;
+    }*/
 
     private Status checkServiceHealth(ServiceInfoDTO service) {
         String healthEndpoint = service.serviceUrl() + service.contextPath() + "/actuator/health";

@@ -1,1 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.wandern.serviceregistrystarter.AutoConfiguration
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=com.wandern.starter.AutoConfiguration

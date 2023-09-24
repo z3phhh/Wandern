@@ -16,6 +16,7 @@
         <module>common</module>
         <module>payment</module>
         <module>apigw</module>
+        <module>untitled</module>
     </modules>
 
     <properties>

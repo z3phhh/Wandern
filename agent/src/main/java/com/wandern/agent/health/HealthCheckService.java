@@ -1,7 +1,7 @@
 package com.wandern.agent.health;
 
 import com.wandern.clients.ServiceInfoDTO;
-import com.wandern.serviceregistrystarter.health.HealthStatus;
+import com.wandern.starter.health.HealthStatus;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,28 +33,7 @@ public class HealthCheckService {
     @Value("${master.service.url}")
     private String masterServiceUrl;
 
-    /**
-     * Опрашивает все зарегистрированные сервисы, проверяя их состояние.
-     * Если сервис не отвечает или сообщает о своем статусе DOWN,
-     * отправляет статус в мастер, затем пытается повторно опросить сервис несколько раз.
-     * После трех попыток отправляет окончательный статус в мастер.
-     */
-
 /*    public void checkServiceHealth(ServiceInfoDTO service) {
-        String healthEndpoint = service.serviceUrl() + service.contextPath() + "/actuator/health";
-        try {
-            ResponseEntity<HealthStatus> response = restTemplate.getForEntity(healthEndpoint, HealthStatus.class);
-            if (Objects.requireNonNull(response.getBody()).status() == Status.DOWN) {
-                logger.warn("Service {} reported DOWN status", service.deploymentId());
-                handleServiceDown(service);
-            }
-        } catch (Exception e) {
-            logger.error("Error checking health for service {}: {}", service.deploymentId(), e.getMessage());
-            handleServiceDown(service);
-        }
-    }*/
-
-    public void checkServiceHealth(ServiceInfoDTO service) {
         String healthEndpoint = service.serviceUrl() + service.contextPath() + "/actuator/health";
         try {
             ResponseEntity<HealthStatus> response = restTemplate.getForEntity(healthEndpoint, HealthStatus.class);
@@ -71,8 +49,6 @@ public class HealthCheckService {
         }
     }
 
-
-    ////////////////////
 
     private void handleServiceDown(ServiceInfoDTO service) {
         logger.warn("Handling DOWN service {}", service.deploymentId());
@@ -96,13 +72,10 @@ public class HealthCheckService {
         }
         logger.error("Service {} is DOWN after retries", service.deploymentId());
         sendStatusToMaster(service, Status.DOWN);
-    }
+    }*/
 
-    /**
-     * Отправляет статус здоровья конкретного сервиса в мастер.
-     */
 
-    private void sendStatusToMaster(ServiceInfoDTO service, Status status) {
+/*    private void sendStatusToMaster(ServiceInfoDTO service, Status status) {
         String targetUrl = masterServiceUrl + "/master/api/v1/services/health/status/" + service.deploymentId();
         HealthStatus healthStatus = new HealthStatus(status, "Service status update");
 
@@ -117,6 +90,7 @@ public class HealthCheckService {
         } catch (RestClientException e) {
             logger.error("Failed to send status update to master for service '{}'.", service.deploymentId(), e);
         }
-    }
+    }*/
+
 }
 

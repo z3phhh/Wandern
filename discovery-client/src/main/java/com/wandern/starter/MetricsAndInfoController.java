@@ -1,4 +1,4 @@
-package com.wandern.serviceregistrystarter;
+package com.wandern.starter;
 
 import com.wandern.clients.MetricsDTO;
 import com.wandern.clients.ServiceInfoDTO;
@@ -26,6 +26,7 @@ public class MetricsAndInfoController {
 
     @Value("${agent.service.url}")
     private String agentServiceUrl;
+    // вынести в конф
 
     @EventListener(ApplicationReadyEvent.class)
     public void registerService() {
@@ -68,11 +69,9 @@ public class MetricsAndInfoController {
     @GetMapping("/metrics")
     public ResponseEntity<MetricsDTO> provideMetrics() {
         logger.info("Received request to provide metrics.");
-
         MetricsDTO metricsDTO = metricsCollector.collectMetrics();
 
 //        logger.info("Returning metrics: {}", metricsDTO);
-
         return ResponseEntity.ok(metricsDTO);
     }
 }

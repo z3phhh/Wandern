@@ -3,9 +3,9 @@ server:
 spring:
   application:
     name: api-gateway
-  cloud:
-    gateway:
-      routes:
+#  cloud:
+#    gateway:
+#      routes:
 #        - id: customer
 #          uri: lb://CUSTOMER
 #          predicates:

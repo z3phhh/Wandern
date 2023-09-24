@@ -71,24 +71,19 @@ public class AgentService {
                 try {
                     registerServiceInMaster(serviceInfoDTO);
                 } catch (Exception ex) {
-                    logger.error("Failed during retry registration in master for service with deploymentId '{}'. Next attempt in 1 minute.", serviceInfoDTO.deploymentId(), ex);
+                    logger.error("Failed during retry registration in master for service with deploymentId '{}'. Next attempt in 1 minute.",
+                            serviceInfoDTO.deploymentId(), ex);
                 }
             }, 1, 1, TimeUnit.MINUTES);  // Повторная попытка каждую минуту
             retryFutures.put(serviceInfoDTO.deploymentId(), future);
         }
     }
 
-
     public Collection<ServiceInfoDTO> getAllServices() {
         return serviceRegistry.getAllServices();
     }
 
-
-    /**
-     * Periodically collects metrics from all registered services.
-     * Sends the collected metrics to the master.
-     */
-    /*@Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 10000)
     public void collectMetricsFromRegisteredServices() {
         Collection<ServiceInfoDTO> allServices = serviceRegistry.getAllServices();
 //        logger.info("All registered services: {}", allServices);
@@ -100,15 +95,15 @@ public class AgentService {
 
         for (ServiceInfoDTO service : allServices) {
             String metricsUrl = service.serviceUrl() + service.contextPath() + "/metrics";
-            logger.info("Requesting metrics from service: {}", metricsUrl);
-
-            MetricsDTO metricsDTO = restTemplate.getForObject(metricsUrl, MetricsDTO.class);
-            logger.info("Received metrics from service {}: {}", metricsUrl, metricsDTO);
-
-            String metricsEndpoint = masterServiceUrl + "/master/api/v1/services/" + service.deploymentId() + "/metrics";
-            logger.info("Sending metrics to master endpoint: {}", metricsEndpoint);
+//            logger.info("Requesting metrics from service: {}", metricsUrl);
 
             try {
+                MetricsDTO metricsDTO = restTemplate.getForObject(metricsUrl, MetricsDTO.class);
+                logger.info("Received metrics from service {}: {}", metricsUrl, metricsDTO);
+
+                String metricsEndpoint = masterServiceUrl + "/master/api/v1/services/" + service.deploymentId() + "/metrics";
+                logger.info("Sending metrics to master endpoint: {}", metricsEndpoint);
+
                 ResponseEntity<String> response = restTemplate.postForEntity(metricsEndpoint, metricsDTO, String.class);
 
                 if (response.getStatusCode().is2xxSuccessful()) {
@@ -118,13 +113,13 @@ public class AgentService {
                 }
             } catch (ResourceAccessException e) {
                 if (e.getCause() instanceof ConnectException) {
-                    logger.warn("Master service is not available. Skipping sending metrics for now.");
+                    logger.warn("Service {} is not available or removed from load balancer. Skipping metrics collection for now.", metricsUrl);
                 } else {
-                    logger.error("Error accessing master service.", e);
+                    logger.error("Error accessing service {}.", metricsUrl, e);
                 }
             } catch (RestClientException e) {
-                logger.error("Failed to send metrics to master.", e);
+                logger.error("Failed to send metrics to master for service: {}.", metricsUrl, e);
             }
         }
-    }*/
+    }
 }

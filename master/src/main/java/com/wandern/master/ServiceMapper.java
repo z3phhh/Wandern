@@ -18,7 +18,6 @@ public abstract class ServiceMapper {
 
     public abstract void updateMetricsFromDTO(MetricsDTO dto, @MappingTarget Metrics entity);
 
-
     @AfterMapping
     protected void setAdditionalFields(@MappingTarget RegisteredService entity) {
         entity.setRegistrationTime(LocalDateTime.now());

@@ -8,7 +8,7 @@ import com.wandern.master.entity.RegisteredService;
 import com.wandern.master.repository.MetricsRepository;
 import com.wandern.master.repository.RegisteredServiceRepository;
 //import com.wandern.serviceregistrystarter.health.HealthStatus;
-import com.wandern.serviceregistrystarter.health.HealthStatus;
+import com.wandern.starter.health.HealthStatus;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,11 +91,9 @@ public class MasterService {
         }
 
         if (healthStatus.status() == Status.DOWN) {
-            // если сервис DOWN, удаляем его из базы данных или обновляем его статус (надо подумать)
             registeredServiceRepository.delete(registeredService);
             return ResponseEntity.ok("Service removed from master");
         } else {
-            // если сервис UP, обновляем его статус или делаем другие мувы (надо подумать)
 //             registeredService.setStatus(healthStatus.status());
              registeredServiceRepository.save(registeredService);
             return ResponseEntity.ok("Service status updated in master");

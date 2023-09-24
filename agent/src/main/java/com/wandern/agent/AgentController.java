@@ -22,12 +22,6 @@ public class AgentController {
     private final AgentService agentService;
     private final ServiceHealthRegistry serviceHealthRegistry;
 
-    /**
-     * Registers a service in the agent and attempts to register it in the master.
-     *
-     * @param serviceInfoDTO The service information to be registered.
-     * @return ResponseEntity with a success message if registration is successful, otherwise returns a partial success message.
-     */
     @PostMapping("/register")
     public ResponseEntity<String> registerService(@RequestBody ServiceInfoDTO serviceInfoDTO) {
         agentService.registerServiceInAgent(serviceInfoDTO);

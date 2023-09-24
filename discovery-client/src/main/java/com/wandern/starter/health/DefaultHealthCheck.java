@@ -1,4 +1,4 @@
-package com.wandern.serviceregistrystarter.health;
+package com.wandern.starter.health;
 
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.stereotype.Component;

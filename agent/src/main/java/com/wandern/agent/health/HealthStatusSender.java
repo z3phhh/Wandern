@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 public class HealthStatusSender {
 
     @Value("${master.service.url}")
-    private String masterServiceUrl;
+    private String masterServiceUrl; //можно вынести
 
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -32,7 +32,7 @@ public class HealthStatusSender {
         try {
             restTemplate.postForEntity(targetUrl, request, Void.class);
         } catch (Exception e) {
-            // Обработка ошибок при отправке данных в мастер
+            // обработку дописать....
         }
     }
 

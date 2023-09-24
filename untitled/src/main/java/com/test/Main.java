@@ -1,11 +1,11 @@
-package com.wandern.payment;
+package com.test;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class PaymentApplication {
+public class Main {
     public static void main(String[] args) {
-        SpringApplication.run(PaymentApplication.class, args);
+        SpringApplication.run(Main.class, args);
     }
 }

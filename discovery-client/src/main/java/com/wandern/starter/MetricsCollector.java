@@ -1,24 +1,23 @@
-package com.wandern.serviceregistrystarter;
+package com.wandern.starter;
 
 import java.lang.management.*;
 
 import com.wandern.clients.MetricsDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 
-// TODO: вроде норм, мб логгер удалить все равно не используется
 @Component
-//@RequContst
+@RequiredArgsConstructor
 public class MetricsCollector {
 
-    private static final Logger logger = LoggerFactory.getLogger(MetricsCollector.class);
+//    private static final Logger logger = LoggerFactory.getLogger(MetricsCollector.class);
 
     private final OperatingSystemMXBean operatingSystemMXBean;
     private final MemoryMXBean memoryMXBean;
     private final ThreadMXBean threadMXBean;
 
+    // @RequiredArgsConstructor poxui
     public MetricsCollector() {
         this.operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         this.memoryMXBean = ManagementFactory.getMemoryMXBean();

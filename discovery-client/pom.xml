@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.wandern.serviceregisterstarter</groupId>
+    <groupId>com.wandern.starter</groupId>
     <artifactId>discovery-client</artifactId>
 
     <properties>

@@ -1,11 +1,7 @@
-package com.wandern.serviceregistrystarter;
+package com.wandern.starter;
 
-//import com.wandern.serviceregistrystarter.health.HealthCheck;
-//import com.wandern.serviceregistrystarter.health.HealthCheckAggregator;
-import com.wandern.serviceregistrystarter.health.HealthCheck;
-import com.wandern.serviceregistrystarter.health.HealthCheckAggregator;
-import org.mapstruct.factory.Mappers;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import com.wandern.starter.health.HealthCheck;
+import com.wandern.starter.health.HealthCheckAggregator;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,7 +43,7 @@ public class AutoConfiguration {
 
     @Bean
     public String helloStarterBean() {
-        System.out.println("Hello from the custom starter!!!");
+        System.out.println("Hello from the custonm starter!!!");
         return "helloStarter";
     }
 }
