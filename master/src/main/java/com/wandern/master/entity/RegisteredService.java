@@ -1,17 +1,23 @@
 package com.wandern.master.entity;
 
+import com.wandern.clients.ServiceStatus;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
-@Table(name = "registered_service")
+@Table(
+        name = "registered_service",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "deployment_id_unit_unique",
+                        columnNames = "deployment_id")
+        }
+)
 public class RegisteredService {
 
     @Id
@@ -24,32 +30,23 @@ public class RegisteredService {
             generator = "registered_service_id_sequence"
     )
     private Long id;
+
     @Column(
-            name = "deploymentId",
-            updatable = false,
+            name = "deployment_id",
             nullable = false
     )
     private String deploymentId;
 
-    @OneToMany(
+    @OneToOne(
             mappedBy = "registeredService",
-            orphanRemoval = true,
-            cascade = {CascadeType.PERSIST, CascadeType.REMOVE},
-            fetch = FetchType.LAZY
+            orphanRemoval = true
     )
-    private List<MetricsEntity> metrics = new ArrayList<>();
+    private Metrics metrics;
 
     @Enumerated(EnumType.STRING)
     private ServiceStatus status;
 
     private String system;
-
-//    @Column(
-//            name = "deploymentUnit",
-//            updatable = false,
-//            nullable = false,
-//            unique = true
-//    )
     private String deploymentUnit;
     private String serviceUrl;
     private String contextPath;
@@ -57,5 +54,4 @@ public class RegisteredService {
     private int port;
     private String ip;
     private LocalDateTime registrationTime;
-//    private LocalDateTime deregistrationTime;
 }

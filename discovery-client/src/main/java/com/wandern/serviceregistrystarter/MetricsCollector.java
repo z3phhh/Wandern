@@ -2,7 +2,7 @@ package com.wandern.serviceregistrystarter;
 
 import java.lang.management.*;
 
-import com.wandern.serviceregistrystarter.model.MetricsData;
+import com.wandern.clients.MetricsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 // TODO: вроде норм, мб логгер удалить все равно не используется
 @Component
+//@RequContst
 public class MetricsCollector {
 
     private static final Logger logger = LoggerFactory.getLogger(MetricsCollector.class);
@@ -24,14 +25,14 @@ public class MetricsCollector {
         this.threadMXBean = ManagementFactory.getThreadMXBean();
     }
 
-    public MetricsData collectMetrics() {
+    public MetricsDTO collectMetrics() {
         double systemLoad = operatingSystemMXBean.getSystemLoadAverage();
         double jvmCpuLoad = getJvmCpuLoad();
         long usedMemoryBytes = memoryMXBean.getHeapMemoryUsage().getUsed();
         long freeMemoryBytes = getFreeMemory();
         int totalThreads = threadMXBean.getThreadCount();
 
-        MetricsData metricsData = new MetricsData(
+        MetricsDTO metricsDTO = new MetricsDTO(
                 systemLoad,
                 jvmCpuLoad,
                 usedMemoryBytes,
@@ -39,9 +40,9 @@ public class MetricsCollector {
                 totalThreads
         );
 
-        logger.info("Collected Metrics: {}", metricsData);
+//        logger.info("Collected Metrics: {}", metricsDTO);
 
-        return metricsData;
+        return metricsDTO;
     }
 
     private double getJvmCpuLoad() {

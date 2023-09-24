@@ -2,15 +2,15 @@ package com.wandern.master;
 
 import com.wandern.clients.MetricsDTO;
 import com.wandern.clients.ServiceInfoDTO;
+import com.wandern.serviceregistrystarter.health.HealthStatus;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.persistence.EntityNotFoundException;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,32 +19,33 @@ public class MasterController {
 
     private final MasterService masterService;
 
-    private static final Logger logger = LoggerFactory.getLogger(MasterController.class);
-
     @PostMapping("/register")
     public ResponseEntity<String> registerService(@RequestBody ServiceInfoDTO serviceInfoDTO) {
-        logger.info("Received registration request for service: {}", serviceInfoDTO);
-
-        try {
-            masterService.registerService(serviceInfoDTO);
-            return ResponseEntity.ok("Service registered successfully in master.");
-        } catch (Exception e) {
-            logger.error("Error registering service: {}", serviceInfoDTO, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to register service in master.");
-        }
+        return masterService.registerService(serviceInfoDTO);
     }
 
-    @PostMapping("/metrics")
-    public ResponseEntity<String> saveMetrics(@RequestBody MetricsDTO metricsDTO) {
-        logger.info("Received metrics: {}", metricsDTO);
-
-        try {
-            masterService.saveMetrics(metricsDTO);
-            return ResponseEntity.ok("Metrics saved successfully in master.");
-        } catch (Exception e) {
-            logger.error("Error saving metrics: {}", metricsDTO, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to save metrics in master.");
-        }
+    @PostMapping("/{deploymentId}/metrics")
+    public ResponseEntity<String> saveMetrics(@PathVariable String deploymentId,
+                                              @RequestBody MetricsDTO metricsDTO) {
+        return masterService.saveMetrics(deploymentId, metricsDTO);
     }
+
+    @PostMapping("/health/status/{deploymentId}")
+    public ResponseEntity<String> updateServiceStatus(@PathVariable String deploymentId,
+                                                      @RequestBody HealthStatus healthStatus) {
+        return masterService.updateServiceStatus(deploymentId, healthStatus);
+    }
+
+/*    @PostMapping("/status")
+    public ResponseEntity<String> updateMultipleServiceStatus(@RequestBody Map<String, HealthStatus> healthStatusMap) {
+        try {
+            for (Map.Entry<String, HealthStatus> entry : healthStatusMap.entrySet()) {
+                masterService.updateServiceStatus(entry.getKey(), entry.getValue());
+            }
+            return ResponseEntity.ok("Service statuses updated successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update service statuses.");
+        }
+    }*/
 
 }

@@ -1,10 +1,13 @@
 package com.wandern.serviceregistrystarter;
 
 import com.wandern.clients.ServiceInfoDTO;
+//import com.wandern.clients.ServiceStatus;
+import com.wandern.clients.ServiceStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.health.Status;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -52,7 +55,8 @@ public class ServiceInfoCollector implements ApplicationContextAware {
                     serviceUrl,
                     contextPath,
                     port,
-                    ip
+                    ip,
+                    ServiceStatus.UNKNOWN
             );
 
         } catch (UnknownHostException e) {
@@ -63,11 +67,9 @@ public class ServiceInfoCollector implements ApplicationContextAware {
 
     private String getMainClassName() {
         String[] beanNames = applicationContext.getBeanNamesForAnnotation(SpringBootApplication.class);
-        if (beanNames != null && beanNames.length > 0) {
+        if (beanNames.length > 0) {
             Object applicationBean = applicationContext.getBean(beanNames[0]);
-            if (applicationBean != null) {
-                return applicationBean.getClass().getSimpleName().split("\\$\\$")[0];
-            }
+            return applicationBean.getClass().getSimpleName().split("\\$\\$")[0];
         }
         return null;
     }

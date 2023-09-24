@@ -1,7 +1,7 @@
-package com.wandern.master.entity;
+package com.wandern.clients;
 
 public enum ServiceStatus {
     UP,
     DOWN,
-    UNKNOWN
+    UNKNOWN;
 }

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "metrics_service")
-public class MetricsEntity {
+public class Metrics {
 
     @Id
     @SequenceGenerator(
@@ -27,13 +27,13 @@ public class MetricsEntity {
     )
     private Long id;
 
-    @ManyToOne
+
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(
-            name = "registered_service_id",
-            nullable = false,
+            name = "deployment_id",
             referencedColumnName = "id",
             foreignKey = @ForeignKey(
-                    name = "service_metrics_fk"
+                    name = "registered_service_fk"
             )
     )
     private RegisteredService registeredService;
@@ -42,8 +42,7 @@ public class MetricsEntity {
 
     private double systemLoad;
     private double jvmCpuLoad;
-    private long usedMemory;
-    private long freeMemory;
+    private long usedMemoryBytes;
+    private long freeMemoryBytes;
     private int totalThreads;
-
 }

@@ -7,7 +7,6 @@ public record ServiceInfoDTO(
     String serviceUrl,
     String contextPath,
     int port,
-    String ip
-)
-{}
-
+    String ip,
+    ServiceStatus status
+) {}

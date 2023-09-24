@@ -2,6 +2,8 @@ package com.wandern.serviceregistrystarter;
 
 //import com.wandern.serviceregistrystarter.health.HealthCheck;
 //import com.wandern.serviceregistrystarter.health.HealthCheckAggregator;
+import com.wandern.serviceregistrystarter.health.HealthCheck;
+import com.wandern.serviceregistrystarter.health.HealthCheckAggregator;
 import org.mapstruct.factory.Mappers;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -21,22 +23,16 @@ public class AutoConfiguration {
         return new RestTemplate();
     }
 
-//    @Bean
-//    public HealthCheckAggregator healthCheckAggregator(List<HealthCheck> healthChecks) {
-//        return new HealthCheckAggregator(healthChecks);
-//    }
-
     @Bean
-    public ServiceMapper serviceMapper() {
-        return Mappers.getMapper(ServiceMapper.class);
+    public HealthCheckAggregator healthCheckAggregator(List<HealthCheck> healthChecks) {
+        return new HealthCheckAggregator(healthChecks);
     }
 
     @Bean
     public MetricsAndInfoController discoveryController(RestTemplate restTemplate,
                                                         ServiceInfoCollector serviceInfoCollector,
-                                                        ServiceMapper serviceMapper,
                                                         MetricsCollector metricsCollector) {
-        return new MetricsAndInfoController(restTemplate, serviceInfoCollector, serviceMapper, metricsCollector);
+        return new MetricsAndInfoController(restTemplate, serviceInfoCollector, metricsCollector);
     }
 
     @Bean

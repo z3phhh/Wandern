@@ -5,8 +5,5 @@ public record MetricsDTO(
     double jvmCpuLoad,
     long usedMemoryBytes,
     long freeMemoryBytes,
-    int totalThreads,
-    String deploymentId,
-    String system,
-    String serviceUrl
+    int totalThreads
 ) {}

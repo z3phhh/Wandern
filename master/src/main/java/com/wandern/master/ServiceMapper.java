@@ -2,21 +2,21 @@ package com.wandern.master;
 
 import com.wandern.clients.MetricsDTO;
 import com.wandern.clients.ServiceInfoDTO;
-import com.wandern.master.entity.MetricsEntity;
+import com.wandern.clients.ServiceStatus;
+import com.wandern.master.entity.Metrics;
 import com.wandern.master.entity.RegisteredService;
-import com.wandern.master.entity.ServiceStatus;
-import com.wandern.master.repository.RegisteredServiceRepository;
 import org.mapstruct.*;
 
 import java.time.LocalDateTime;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public abstract class ServiceMapper {
     public abstract RegisteredService toEntity(ServiceInfoDTO DTO);
 
-    public abstract ServiceInfoDTO toDTO(RegisteredService entity);
+    public abstract Metrics toEntity(MetricsDTO DTO);
 
-    public abstract MetricsEntity toEntity(MetricsDTO DTO);
+    public abstract void updateMetricsFromDTO(MetricsDTO dto, @MappingTarget Metrics entity);
 
 
     @AfterMapping
