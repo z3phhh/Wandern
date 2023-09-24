@@ -7,6 +7,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Реестр, хранящий информацию о состоянии здоровья всех зарегистрированных сервисов.
+ */
 @Component
 public class ServiceHealthRegistry {
     private final Map<String, ServiceHealthInfo> serviceHealthInfoMap = new ConcurrentHashMap<>();

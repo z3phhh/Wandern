@@ -34,6 +34,13 @@ public class MasterService {
     private final MetricsRepository metricsRepository;
     private final ServiceMapper serviceMapper;
 
+    /**
+     * Регистрирует сервис в глобальной топологии.
+     * Преобразует DTO в сущность и сохраняет ее в базе данных.
+     *
+     * @param serviceInfoDTO информация о регистрируемом сервисе.
+     * @return ответ о результате регистрации.
+     */
     public ResponseEntity<String> registerService(ServiceInfoDTO serviceInfoDTO) {
 //        logger.info("Original ServiceInfoData: {}", serviceInfoDTO);
         RegisteredService registeredService = serviceMapper.toEntity(serviceInfoDTO);
@@ -49,6 +56,15 @@ public class MasterService {
         }
     }
 
+    /**
+     * Сохраняет метрики для указанного сервиса.
+     * Поиск существующих метрик осуществляется по идентификатору развертывания.
+     * Если метрики уже существуют, они обновляются. В противном случае создается новая запись.
+     *
+     * @param deploymentId идентификатор развертывания сервиса.
+     * @param metricsDTO метрики сервиса.
+     * @return ответ о результате сохранения метрик.
+     */
     @Transactional
     public ResponseEntity<String> saveMetrics(String deploymentId, MetricsDTO metricsDTO) {
         logger.info("Attempting to find RegisteredService with deploymentId: {}", deploymentId);
@@ -82,6 +98,16 @@ public class MasterService {
         }
     }
 
+    /**
+     * Обновляет статус сервиса на основе предоставленного статуса здоровья.
+     * Если статус "DOWN", сервис удаляется из базы данных.
+     * В противном случае статус сервиса обновляется.
+     *
+     * @param deploymentId идентификатор развертывания сервиса.
+     * @param healthStatus статус здоровья сервиса.
+     * @return ответ о результате обновления статуса.
+     */
+    @Deprecated // старая реализация
     public ResponseEntity<String> updateServiceStatus(String deploymentId, HealthStatus healthStatus) {
         RegisteredService registeredService = registeredServiceRepository.findByDeploymentId(deploymentId)
                 .orElse(null);
@@ -99,6 +125,5 @@ public class MasterService {
             return ResponseEntity.ok("Service status updated in master");
         }
     }
-
 
 }

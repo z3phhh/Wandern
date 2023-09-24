@@ -19,6 +19,10 @@ import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Сервис, предоставляющий функциональность для работы с агентом.
+ * Отвечает за регистрацию сервисов в агенте и мастере, а также за сбор и отправку метрик.
+ */
 @Service
 @RequiredArgsConstructor
 public class AgentService {
@@ -39,6 +43,11 @@ public class AgentService {
         logger.info("Service with deploymentId '{}' registered successfully in agent.", serviceInfoDTO.deploymentId());
     }
 
+    /**
+     * Регистрирует сервис в мастере. В случае ошибки планирует повторную попытку (3 попытки с кд в 30 секунд).
+     *
+     * @param serviceInfoDTO информация о регистрируемом сервисе.
+     */
     public void registerServiceInMaster(ServiceInfoDTO serviceInfoDTO) {
         try {
             restTemplate.postForEntity(masterServiceUrl + "/master/api/v1/services/register", serviceInfoDTO, Void.class);
@@ -62,6 +71,11 @@ public class AgentService {
         }
     }
 
+    /**
+     * Планирует повторную попытку регистрации сервиса в мастер-сервисе.
+     *
+     * @param serviceInfoDTO информация о регистрируемом сервисе.
+     */
     private void scheduleRetry(ServiceInfoDTO serviceInfoDTO) {
         ScheduledFuture<?> existingFuture = retryFutures.get(serviceInfoDTO.deploymentId());
         if (existingFuture == null || existingFuture.isDone()) {
@@ -79,10 +93,18 @@ public class AgentService {
         }
     }
 
+    /**
+     * Возвращает список всех зарегистрированных сервисов.
+     *
+     * @return коллекция зарегистрированных сервисов.
+     */
     public Collection<ServiceInfoDTO> getAllServices() {
         return serviceRegistry.getAllServices();
     }
 
+    /**
+     * Собирает метрики от всех зарегистрированных сервисов и отправляет их в мастер-сервис.
+     */
     @Scheduled(fixedRate = 10000)
     public void collectMetricsFromRegisteredServices() {
         Collection<ServiceInfoDTO> allServices = serviceRegistry.getAllServices();

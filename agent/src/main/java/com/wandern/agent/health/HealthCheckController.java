@@ -24,10 +24,15 @@ public class HealthCheckController {
         return ResponseEntity.ok(healthCheckAggregator.aggregateStatus());
     }*/
 
+    /**
+     * Возвращает статусы всех зарегистрированных сервисов.
+     *
+     * @return Ответ с мапой статусов сервисов.
+     */
     @GetMapping("/services-status")
     public ResponseEntity<Map<String, Status>> getServicesStatus() {
         return ResponseEntity.ok(healthCheckAgent.getServiceStatuses());
     }
 
-    // TODO : сделать расписание HC
+    // TODO : сделать вывод расписания HC для каждого сервиса
 }
