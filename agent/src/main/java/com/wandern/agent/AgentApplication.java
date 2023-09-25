@@ -5,7 +5,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
-@SpringBootApplication
+@SpringBootApplication(
+        scanBasePackages = {
+                "com.wandern.agent",
+                "com.wandern.clients"
+        }
+)
 public class AgentApplication {
     public static void main(String[] args) {
         SpringApplication.run(AgentApplication.class, args);

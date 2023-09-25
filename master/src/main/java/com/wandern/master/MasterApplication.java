@@ -9,5 +9,3 @@ public class MasterApplication {
         SpringApplication.run(MasterApplication.class, args);
     }
 }
-
-//todo: Run in this order: 1) master 2) agent 3) arm 4) manager

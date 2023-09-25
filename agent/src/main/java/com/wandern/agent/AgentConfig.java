@@ -8,20 +8,16 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 public class AgentConfig {
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
     @Value("${master.service.url}")
     private String masterServiceUrl;
 
     @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+    @Bean
     public String masterServiceUrl() {
         return masterServiceUrl;
     }
-
-    public String getMasterServiceUrl() {
-        return masterServiceUrl;
-    }
+    // TODO : возможно стоит удалить, поскольку в стартере есть
 }

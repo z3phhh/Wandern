@@ -1,0 +1,15 @@
+Index: discovery-client/src/main/java/com/wandern/serviceregistrystarter/dto/MetricsDTOResponce.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/discovery-client/src/main/java/com/wandern/serviceregistrystarter/dto/MetricsDTOResponce.java b/discovery-client/src/main/java/com/wandern/serviceregistrystarter/dto/MetricsDTOResponce.java
+--- a/discovery-client/src/main/java/com/wandern/serviceregistrystarter/dto/MetricsDTOResponce.java	
++++ b/discovery-client/src/main/java/com/wandern/serviceregistrystarter/dto/MetricsDTOResponce.java	(date 1695118096014)
+@@ -1,6 +1,5 @@
+ package com.wandern.serviceregistrystarter.dto;
+ 
+-// TODO: надо вынести в общий пакет
+ public record MetricsDTOResponce(
+     double systemLoad,
+     double jvmCpuLoad,

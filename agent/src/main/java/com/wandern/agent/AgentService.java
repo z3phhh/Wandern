@@ -1,130 +1,147 @@
 package com.wandern.agent;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.wandern.clients.MetricsDTO;
+import com.wandern.clients.ServiceInfoDTO;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.net.ConnectException;
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
-@Slf4j
+/**
+ * Сервис, предоставляющий функциональность для работы с агентом.
+ * Отвечает за регистрацию сервисов в агенте и мастере, а также за сбор и отправку метрик.
+ */
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class AgentService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AgentService.class);
+    private final ScheduledExecutorService retryExecutor = Executors.newSingleThreadScheduledExecutor();
+    private final AtomicInteger retryCount = new AtomicInteger(0);
+    private final Map<String, ScheduledFuture<?>> retryFutures = new ConcurrentHashMap<>();
+
+    @Value("${master.service.url}")
+    private String masterServiceUrl;
+
     private final RestTemplate restTemplate;
-    private final String masterServiceUrl;
-    private final Map<String, ServiceInfo> registeredServices = new ConcurrentHashMap<>();
-    private final Map<String, ServiceInfo> localTopology = new ConcurrentHashMap<>();
-    private final Set<String> warnedServices = new HashSet<>();
+    private final ServiceRegistry serviceRegistry;
 
-
-    public ResponseEntity<String> registerService(ServiceInfo serviceInfo) {
-        String serviceKey = serviceInfo.getSystem() + "-" + serviceInfo.getDeploymentId();
-        serviceInfo.setBalancingEnabled(true);
-        registeredServices.put(serviceKey, serviceInfo);
-        log.info("Registered instance {}", serviceInfo);
-
-        sendServiceInfoToMaster(serviceInfo);
-
-        return ResponseEntity.ok("Service registered");
+    public void registerServiceInAgent(ServiceInfoDTO serviceInfoDTO) {
+        serviceRegistry.registerService(serviceInfoDTO);
+        logger.info("Service with deploymentId '{}' registered successfully in agent.", serviceInfoDTO.deploymentId());
     }
 
-    private void sendServiceInfoToMaster(ServiceInfo serviceInfo) {
+    /**
+     * Регистрирует сервис в мастере. В случае ошибки планирует повторную попытку (3 попытки с кд в 30 секунд).
+     *
+     * @param serviceInfoDTO информация о регистрируемом сервисе.
+     */
+    public void registerServiceInMaster(ServiceInfoDTO serviceInfoDTO) {
         try {
-            ResponseEntity<String> response = restTemplate.postForEntity(masterServiceUrl + "/register", serviceInfo, String.class);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                log.info("Service registered successfully in master");
-            } else {
-                log.warn("Service registration in master failed, status code: {}", response.getStatusCode());
+            restTemplate.postForEntity(masterServiceUrl + "/master/api/v1/services/register", serviceInfoDTO, Void.class);
+            logger.info("Service with deploymentId '{}' registered successfully in master.", serviceInfoDTO.deploymentId());
+
+            // Если регистрация прошла успешно, отменяем повторную попытку для этого deploymentId
+            ScheduledFuture<?> future = retryFutures.remove(serviceInfoDTO.deploymentId());
+            if (future != null) {
+                future.cancel(false);
             }
-        } catch (Exception e) {
-            log.error("Error registering service in master", e);
+            retryCount.set(0);  // Reset the retry count
+        } catch (ResourceAccessException e) {
+            if (e.getCause() instanceof ConnectException) {
+                logger.warn("Master service is not available. Scheduling a retry for service with deploymentId '{}'.", serviceInfoDTO.deploymentId());
+                scheduleRetry(serviceInfoDTO);
+            } else {
+                logger.error("Error accessing master service for service with deploymentId '{}'.", serviceInfoDTO.deploymentId(), e);
+            }
+        } catch (RestClientException e) {
+            logger.error("Failed to register service with deploymentId '{}' in master.", serviceInfoDTO.deploymentId(), e);
         }
     }
 
-    @Scheduled(fixedRate = 3000) // каждые 3 секунды
-    public void checkServicesHealth() {
-        Map<String, Boolean> healthStatusUpdates = new HashMap<>();
-        for (ServiceInfo serviceInfo : localTopology.values()) {
-            String serviceKey = serviceInfo.getSystem() + "-" + serviceInfo.getDeploymentId();
-            if (!serviceInfo.isBalancingEnabled()) {
-                if (!warnedServices.contains(serviceKey)) {
-                    log.info("Skipping health check for service {} as it has been manually removed from balancing", serviceKey);
-                    warnedServices.add(serviceKey);
+    /**
+     * Планирует повторную попытку регистрации сервиса в мастер-сервисе.
+     *
+     * @param serviceInfoDTO информация о регистрируемом сервисе.
+     */
+    private void scheduleRetry(ServiceInfoDTO serviceInfoDTO) {
+        ScheduledFuture<?> existingFuture = retryFutures.get(serviceInfoDTO.deploymentId());
+        if (existingFuture == null || existingFuture.isDone()) {
+            ScheduledFuture<?> future = retryExecutor.scheduleWithFixedDelay(() -> {
+                int attempt = retryCount.incrementAndGet();
+                logger.info("Retry attempt #{} to register in master for service with deploymentId '{}'.", attempt, serviceInfoDTO.deploymentId());
+                try {
+                    registerServiceInMaster(serviceInfoDTO);
+                } catch (Exception ex) {
+                    logger.error("Failed during retry registration in master for service with deploymentId '{}'. Next attempt in 1 minute.",
+                            serviceInfoDTO.deploymentId(), ex);
                 }
-                continue;
-            } else {
-                warnedServices.remove(serviceKey);
-            }
-            String url =
-                    "http://"
-                            + serviceInfo.getAddress()
-                            + ":"
-                            + serviceInfo.getPort()
-                            + serviceInfo.getHealthEndpoint();
+            }, 1, 1, TimeUnit.MINUTES);  // Повторная попытка каждую минуту
+            retryFutures.put(serviceInfoDTO.deploymentId(), future);
+        }
+    }
+
+    /**
+     * Возвращает список всех зарегистрированных сервисов.
+     *
+     * @return коллекция зарегистрированных сервисов.
+     */
+    public Collection<ServiceInfoDTO> getAllServices() {
+        return serviceRegistry.getAllServices();
+    }
+
+    /**
+     * Собирает метрики от всех зарегистрированных сервисов и отправляет их в мастер-сервис.
+     */
+    @Scheduled(fixedRate = 10000)
+    public void collectMetricsFromRegisteredServices() {
+        Collection<ServiceInfoDTO> allServices = serviceRegistry.getAllServices();
+//        logger.info("All registered services: {}", allServices);
+
+        if (allServices.isEmpty()) {
+            logger.info("No registered services found. Skipping metrics collection.");
+            return;
+        }
+
+        for (ServiceInfoDTO service : allServices) {
+            String metricsUrl = service.serviceUrl() + service.contextPath() + "/metrics";
+//            logger.info("Requesting metrics from service: {}", metricsUrl);
+
             try {
-                ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+                MetricsDTO metricsDTO = restTemplate.getForObject(metricsUrl, MetricsDTO.class);
+                logger.info("Received metrics from service {}: {}", metricsUrl, metricsDTO);
+
+                String metricsEndpoint = masterServiceUrl + "/master/api/v1/services/" + service.deploymentId() + "/metrics";
+                logger.info("Sending metrics to master endpoint: {}", metricsEndpoint);
+
+                ResponseEntity<String> response = restTemplate.postForEntity(metricsEndpoint, metricsDTO, String.class);
+
                 if (response.getStatusCode().is2xxSuccessful()) {
-                    log.info("Service {} is healthy", serviceKey);
-                    healthStatusUpdates.put(serviceKey, true);
+                    logger.info("Metrics successfully sent to master for service: {}", metricsUrl);
                 } else {
-                    log.warn("Service {} is not healthy, status code: {}", serviceKey, response.getStatusCode());
-                    healthStatusUpdates.put(serviceKey, false);
+                    logger.error("Failed to send metrics to master for service: {}. Response: {}", metricsUrl, response);
                 }
             } catch (ResourceAccessException e) {
-                log.error("Error checking health of service {}: Connection refused", serviceKey);
-                healthStatusUpdates.put(serviceKey, false);
-            } catch (Exception e) {
-                log.error("Error checking health of service {}", serviceKey, e);
-                healthStatusUpdates.put(serviceKey, false);
-            }
-        }
-        sendHealthStatusToMaster(healthStatusUpdates);
-    }
-
-    @Scheduled(fixedRateString = "${topology.update.interval}")
-    public void updateLocalTopology() {
-        try {
-            ResponseEntity<Map> response = restTemplate.getForEntity(masterServiceUrl + "/getTopology", Map.class);
-            if (response.getStatusCode().is2xxSuccessful()) {
-                localTopology.clear();
-                Map<String, LinkedHashMap> responseBody = response.getBody();
-                ObjectMapper objectMapper = new ObjectMapper();
-                for (Map.Entry<String, LinkedHashMap> entry : responseBody.entrySet()) {
-                    ServiceInfo serviceInfo = objectMapper.convertValue(entry.getValue(), ServiceInfo.class);
-                    localTopology.put(entry.getKey(), serviceInfo);
-                    if (!serviceInfo.isBalancingEnabled() && !warnedServices.contains(entry.getKey())) {
-                        log.warn("Service {} has been manually removed from balancing",
-                                serviceInfo.getSystem() + "-" + serviceInfo.getDeploymentId());
-                        warnedServices.add(entry.getKey());
-                    }
+                if (e.getCause() instanceof ConnectException) {
+                    logger.warn("Service {} is not available or removed from load balancer. Skipping metrics collection for now.", metricsUrl);
+                } else {
+                    logger.error("Error accessing service {}.", metricsUrl, e);
                 }
-                log.info("Local topology updated successfully");
-            } else {
-                log.warn("Failed to update local topology, status code: {}", response.getStatusCode());
+            } catch (RestClientException e) {
+                logger.error("Failed to send metrics to master for service: {}.", metricsUrl, e);
             }
-        } catch (Exception e) {
-            log.error("Error updating local topology", e);
         }
     }
-
-    public Map<String, ServiceInfo> getLocalTopology() {
-        return localTopology;
-    }
-
-    private void sendHealthStatusToMaster(Map<String, Boolean> healthStatusUpdates) {
-        try {
-            restTemplate.postForEntity(masterServiceUrl + "/updateHealthStatus",
-                    healthStatusUpdates, String.class);
-        } catch (Exception e) {
-            log.error("Error sending health status to master", e);
-        }
-    }
-
 }
