@@ -10,6 +10,14 @@ master:
   service:
     url: http://localhost:8080
 
+healthcheck:
+  interval: 30
+
+metrics:
+  collection:
+    interval:
+      seconds: 30
+
 #management:
 #  endpoints:
 #    web:
