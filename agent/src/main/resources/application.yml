@@ -18,6 +18,9 @@ metrics:
     interval:
       seconds: 30
 
+deployment:
+  prefix: mragent
+
 #management:
 #  endpoints:
 #    web:
