@@ -48,7 +48,7 @@ public class AgentController {
      * @param serviceHealthInfo информация о состоянии здоровья сервиса.
      * @return Ответ без содержимого.
      */
-    @Deprecated // крч пока хз
+//    @Deprecated // крч пока хз
     @PostMapping("/update-service-health")
     public ResponseEntity<Void> updateServiceHealth(@RequestBody ServiceHealthInfo serviceHealthInfo) {
         serviceHealthRegistry.updateServiceHealth(serviceHealthInfo.serviceName(), serviceHealthInfo.healthStatus());

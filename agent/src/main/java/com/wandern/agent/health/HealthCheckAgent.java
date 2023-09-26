@@ -36,7 +36,10 @@ public class HealthCheckAgent {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${master.service.url}")
-    private String masterServiceUrl; //можно вынести
+    private String masterServiceUrl;
+
+    @Value("${healthcheck.interval}")
+    private long healthCheckInterval;
 
     /**
      * Регистрирует сервис для регулярной проверки его состояния.
@@ -52,7 +55,7 @@ public class HealthCheckAgent {
             Status status = checkServiceHealth(serviceInfoDTO);
             serviceStatuses.put(serviceInfoDTO, status);
             sendStatusToMaster(serviceInfoDTO.deploymentId(), status);
-        }, 0, 30, TimeUnit.SECONDS);
+        }, 0, healthCheckInterval, TimeUnit.SECONDS);
         serviceSchedulers.put(serviceInfoDTO, scheduler);
     }
 
@@ -66,49 +69,51 @@ public class HealthCheckAgent {
      * @param service сервис, состояние которого нужно проверить.
      * @return статус сервиса.
      */
+    /*
     private Status checkServiceHealth(ServiceInfoDTO service) {
-        String healthEndpoint = service.serviceUrl() + service.contextPath() + "/actuator/health";
-        int maxAttempts = 100;
-        int attempt = 1;
-        int delay = 1000; // начальная задержка в миллисекундах (1 секунда)
+    String healthEndpoint = service.serviceUrl() + service.contextPath() + "/actuator/health";
+    int maxAttempts = 100;
+    int attempt = 1;
+    int delay = 1000; // начальная задержка в миллисекундах (1 секунда)
 
-        while (attempt <= maxAttempts) {
-            try {
-                ResponseEntity<HealthStatus> response = restTemplate.getForEntity(healthEndpoint, HealthStatus.class);
-                Status status = Objects.requireNonNull(response.getBody()).status();
-                if (status != Status.DOWN) {
-                    return status;
-                }
-            } catch (Exception e) {
-                // + log
+    while (attempt <= maxAttempts) {
+        try {
+            ResponseEntity<HealthStatus> response = restTemplate.getForEntity(healthEndpoint, HealthStatus.class);
+            Status status = Objects.requireNonNull(response.getBody()).status();
+            if (status != Status.DOWN) {
+                return status;
             }
-
-            if (attempt < maxAttempts) {
-                logger.warn("Attempt №{} to connect to the: {} failed. Retrying in {} seconds...", attempt, service.deploymentId(), delay / 1000);
-                try {
-                    Thread.sleep(delay);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    return Status.DOWN;
-                }
-                delay *= 2; // удваиваем задержку
-            }
-            attempt++;
+        } catch (Exception e) {
+            // + log
         }
 
-        logger.error("All attempts to check the health of service {} have failed.", service.deploymentId());
-        return Status.DOWN;
+        if (attempt < maxAttempts) {
+            logger.warn("Attempt №{} to connect to the: {} failed. Retrying in {} seconds...", attempt, service.deploymentId(), delay / 1000);
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                return Status.DOWN;
+            }
+            delay *= 2; // удваиваем задержку
+        }
+        attempt++;
     }
 
-/*    private Status checkServiceHealth(ServiceInfoDTO service) {
+    logger.error("All attempts to check the health of service {} have failed.", service.deploymentId());
+    return Status.DOWN;
+}*/
+
+    private Status checkServiceHealth(ServiceInfoDTO service) {
         String healthEndpoint = service.serviceUrl() + service.contextPath() + "/actuator/health";
         try {
             ResponseEntity<HealthStatus> response = restTemplate.getForEntity(healthEndpoint, HealthStatus.class);
             return Objects.requireNonNull(response.getBody()).status();
         } catch (Exception e) {
+            logger.error("[HEALTH CHECK] Error checking service health for " + service.deploymentId(), e);
             return Status.DOWN;
         }
-    }*/
+    }
 
     /**
      * Возвращает мапу статусов всех зарегистрированных сервисов.
@@ -145,7 +150,7 @@ public class HealthCheckAgent {
         try {
             restTemplate.postForEntity(targetUrl, request, Void.class);
         } catch (Exception e) {
-            // обработку дописать....
+            logger.error("Error sending status to master for deploymentId: " + deploymentId, e);
         }
     }
 }

@@ -1,7 +1,9 @@
 package com.wandern.master.entity;
 
 import com.wandern.clients.ServiceStatus;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -10,36 +12,42 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(
         name = "registered_service",
         uniqueConstraints = {
                 @UniqueConstraint(
-                        name = "deployment_id_unit_unique",
-                        columnNames = "deployment_id")
+                        name = "unique_deployment_id",
+                        columnNames = "deployment_id"
+                )
         }
 )
 public class RegisteredService {
 
     @Id
     @SequenceGenerator(
-            name = "registered_service_id_sequence",
-            sequenceName = "registered_service_id_sequence"
+            name = "registered_service_id_seq",
+            sequenceName = "registered_service_id_seq",
+            allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "registered_service_id_sequence"
+            generator = "registered_service_id_seq"
     )
     private Long id;
 
     @Column(
             name = "deployment_id",
-            nullable = false
+            nullable = false,
+            columnDefinition = "VARCHAR(255)"
     )
     private String deploymentId;
 
     @OneToOne(
             mappedBy = "registeredService",
-            orphanRemoval = true
+            orphanRemoval = true,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
     )
     private Metrics metrics;
 

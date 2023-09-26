@@ -11,13 +11,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MetricsCollector {
 
-//    private static final Logger logger = LoggerFactory.getLogger(MetricsCollector.class);
-
     private final OperatingSystemMXBean operatingSystemMXBean;
     private final MemoryMXBean memoryMXBean;
     private final ThreadMXBean threadMXBean;
 
-    // @RequiredArgsConstructor poxui
     public MetricsCollector() {
         this.operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
         this.memoryMXBean = ManagementFactory.getMemoryMXBean();

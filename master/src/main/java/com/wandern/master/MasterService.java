@@ -67,11 +67,11 @@ public class MasterService {
      */
     @Transactional
     public ResponseEntity<String> saveMetrics(String deploymentId, MetricsDTO metricsDTO) {
-        logger.info("Attempting to find RegisteredService with deploymentId: {}", deploymentId);
+//        logger.info("Attempting to find RegisteredService with deploymentId: {}", deploymentId);
 
         RegisteredService registeredService = registeredServiceRepository.findByDeploymentId(deploymentId)
                 .orElseThrow(() -> {
-                    logger.warn("No RegisteredService found for deploymentId: {}", deploymentId);
+                    logger.warn("[METRICS] No RegisteredService found for deploymentId: {}", deploymentId);
                     return new RuntimeException("RegisteredService not found");
                 });
 
@@ -90,10 +90,10 @@ public class MasterService {
 
         try {
             metricsRepository.save(metrics);
-            logger.info("Metrics saved successfully for deploymentId: {}", deploymentId);
+            logger.info("[METRICS] Metrics saved successfully for deploymentId: {}", deploymentId);
             return ResponseEntity.ok("Metrics saved successfully.");
         } catch (Exception e) {
-            logger.error("Error saving metrics for deploymentId: {}", deploymentId, e);
+            logger.error("[METRICS] Error saving metrics for deploymentId: {}", deploymentId, e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving metrics.");
         }
     }
@@ -107,7 +107,7 @@ public class MasterService {
      * @param healthStatus статус здоровья сервиса.
      * @return ответ о результате обновления статуса.
      */
-    @Deprecated // старая реализация
+//    @Deprecated // старая реализация
     public ResponseEntity<String> updateServiceStatus(String deploymentId, HealthStatus healthStatus) {
         RegisteredService registeredService = registeredServiceRepository.findByDeploymentId(deploymentId)
                 .orElse(null);
