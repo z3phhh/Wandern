@@ -1,6 +1,8 @@
 package com.wandern.master.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -9,17 +11,20 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "metrics_service")
 public class Metrics {
 
     @Id
     @SequenceGenerator(
-            name = "system_metrics_id_sequence",
-            sequenceName = "system_metrics_id_sequence"
+            name = "metrics_service_id_seq",
+            sequenceName = "metrics_service_id_seq",
+            allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "system_metrics_id_sequence"
+            generator = "metrics_service_id_seq"
     )
     @Column(
             name = "id",
@@ -27,13 +32,12 @@ public class Metrics {
     )
     private Long id;
 
-
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(
-            name = "deployment_id",
-            referencedColumnName = "id",
+            name = "id",
+            referencedColumnName = "registered_id",
             foreignKey = @ForeignKey(
-                    name = "registered_service_fk"
+                    name = "fk_metrics_service_registered_service"
             )
     )
     private RegisteredService registeredService;

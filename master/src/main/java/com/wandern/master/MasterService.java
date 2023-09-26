@@ -107,7 +107,7 @@ public class MasterService {
      * @param healthStatus статус здоровья сервиса.
      * @return ответ о результате обновления статуса.
      */
-    @Deprecated // старая реализация
+//    @Deprecated // старая реализация
     public ResponseEntity<String> updateServiceStatus(String deploymentId, HealthStatus healthStatus) {
         RegisteredService registeredService = registeredServiceRepository.findByDeploymentId(deploymentId)
                 .orElse(null);

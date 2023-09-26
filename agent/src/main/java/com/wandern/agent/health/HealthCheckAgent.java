@@ -66,7 +66,7 @@ public class HealthCheckAgent {
      * @param service сервис, состояние которого нужно проверить.
      * @return статус сервиса.
      */
-    private Status checkServiceHealth(ServiceInfoDTO service) {
+/*    private Status checkServiceHealth(ServiceInfoDTO service) {
         String healthEndpoint = service.serviceUrl() + service.contextPath() + "/actuator/health";
         int maxAttempts = 100;
         int attempt = 1;
@@ -98,9 +98,9 @@ public class HealthCheckAgent {
 
         logger.error("All attempts to check the health of service {} have failed.", service.deploymentId());
         return Status.DOWN;
-    }
+    }*/
 
-/*    private Status checkServiceHealth(ServiceInfoDTO service) {
+    private Status checkServiceHealth(ServiceInfoDTO service) {
         String healthEndpoint = service.serviceUrl() + service.contextPath() + "/actuator/health";
         try {
             ResponseEntity<HealthStatus> response = restTemplate.getForEntity(healthEndpoint, HealthStatus.class);
@@ -108,7 +108,7 @@ public class HealthCheckAgent {
         } catch (Exception e) {
             return Status.DOWN;
         }
-    }*/
+    }
 
     /**
      * Возвращает мапу статусов всех зарегистрированных сервисов.
