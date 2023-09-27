@@ -9,6 +9,9 @@ spring:
 master:
   service:
     url: http://localhost:8080
+  registration:
+    retry:
+      interval: 50
 
 healthcheck:
   interval: 30

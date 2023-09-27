@@ -11,13 +11,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Класс, отвечающий за регистрацию сервисов.
+ * Этот компонент представляет собой реестр сервисов
  * Хранит информацию о всех зарегистрированных сервисах и предоставляет функциональность для их регистрации.
  */
 @Component
 @RequiredArgsConstructor
 public class ServiceRegistry {
 
+    /**
+     * Map registry хранит информацию о сервисах
+     */
     private final ConcurrentMap<String, ServiceInfoDTO> registry = new ConcurrentHashMap<>();
     private final HealthCheckAgent healthCheckAgent;
 
@@ -28,7 +31,7 @@ public class ServiceRegistry {
      */
     public void registerService(ServiceInfoDTO serviceInfoDTO) {
         registry.put(serviceInfoDTO.deploymentId(), serviceInfoDTO);
-        healthCheckAgent.registerService(serviceInfoDTO); // для hc
+//        healthCheckAgent.registerService(serviceInfoDTO); // для hc
     }
 
     public Optional<ServiceInfoDTO> getService(String deploymentId) {

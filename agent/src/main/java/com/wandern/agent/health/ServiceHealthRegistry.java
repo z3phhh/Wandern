@@ -12,12 +12,25 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 public class ServiceHealthRegistry {
+
+    /**
+     * Map serviceHealthInfoMap хранит информацию о состоянии здоровья сервисов
+     */
     private final Map<String, ServiceHealthInfo> serviceHealthInfoMap = new ConcurrentHashMap<>();
 
+    /**
+     * Метод для обновления состояний здоровья сервисов
+     * @param serviceName
+     * @param healthStatus
+     */
     public void updateServiceHealth(String serviceName, HealthStatus healthStatus) {
         serviceHealthInfoMap.put(serviceName, new ServiceHealthInfo(serviceName, healthStatus));
     }
 
+    /**
+     * Мето для обновления состояний здоровья сервисов
+     * @return
+     */
     public Map<String, ServiceHealthInfo> getAllServiceHealthInfo() {
         return Collections.unmodifiableMap(serviceHealthInfoMap);
     }

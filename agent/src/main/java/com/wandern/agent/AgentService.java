@@ -44,9 +44,12 @@ public class AgentService {
     }
 
     /**
-     * Регистрирует сервис в мастере. В случае ошибки планирует повторную попытку (3 попытки с кд в 30 секунд).
+     * Пытается зарегистрировать указанный сервис в мастер-сервисе.
+     * При успешной регистрации отменяет любые запланированные повторные попытки регистрации для данного deploymentId.
+     * Если возникает проблема с подключением, планируется повторная попытка.
      *
-     * @param serviceInfoDTO информация о регистрируемом сервисе.
+     * @param serviceInfoDTO Информация о сервисе для регистрации.
+     * @see #scheduleRetry(ServiceInfoDTO) Метод для планирования повторной попытки регистрации.
      */
     public void registerServiceInMaster(ServiceInfoDTO serviceInfoDTO) {
         try {
@@ -72,10 +75,14 @@ public class AgentService {
     }
 
     /**
-     * Планирует повторную попытку регистрации сервиса в мастер-сервисе.
+     * Планирует повторную попытку регистрации указанного сервиса в мастер-сервисе.
+     * Повторная попытка планируется с фиксированным интервалом, который можно настроить в конфигурационном файле.
      *
-     * @param serviceInfoDTO информация о регистрируемом сервисе.
+     * @param serviceInfoDTO Информация о сервисе для которого планируется повторная попытка регистрации.
+     * @see #registerServiceInMaster(ServiceInfoDTO) Основной метод регистрации сервиса.
      */
+    @Value("${master.registration.retry.interval}")
+    private long retryInterval;
     private void scheduleRetry(ServiceInfoDTO serviceInfoDTO) {
         ScheduledFuture<?> existingFuture = retryFutures.get(serviceInfoDTO.deploymentId());
         if (existingFuture == null || existingFuture.isDone()) {
@@ -88,18 +95,9 @@ public class AgentService {
                     logger.error("Failed during retry registration in master for service with deploymentId '{}'. Next attempt in 1 minute.",
                             serviceInfoDTO.deploymentId(), ex);
                 }
-            }, 1, 1, TimeUnit.MINUTES);  // Повторная попытка каждую минуту
+            }, retryInterval, retryInterval, TimeUnit.SECONDS);
             retryFutures.put(serviceInfoDTO.deploymentId(), future);
         }
-    }
-
-    /**
-     * Возвращает список всех зарегистрированных сервисов.
-     *
-     * @return коллекция зарегистрированных сервисов.
-     */
-    public Collection<ServiceInfoDTO> getAllServices() {
-        return serviceRegistry.getAllServices();
     }
 
     /**

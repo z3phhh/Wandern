@@ -1,5 +1,6 @@
 package com.wandern.agent;
 
+import com.wandern.agent.health.HealthCheckAgent;
 import com.wandern.agent.health.ServiceHealthInfo;
 import com.wandern.agent.health.ServiceHealthRegistry;
 import com.wandern.clients.ServiceInfoDTO;
@@ -16,7 +17,9 @@ import java.util.Map;
 public class AgentController {
 
     private final AgentService agentService;
+    private final ServiceRegistry serviceRegistry;
     private final ServiceHealthRegistry serviceHealthRegistry;
+    private final HealthCheckAgent healthCheckAgent;
 
     /**
      * Регистрирует сервис в агенте и мастер-сервисе.
@@ -27,6 +30,7 @@ public class AgentController {
     @PostMapping("/register")
     public ResponseEntity<String> registerService(@RequestBody ServiceInfoDTO serviceInfoDTO) {
         agentService.registerServiceInAgent(serviceInfoDTO);
+        healthCheckAgent.registerService(serviceInfoDTO);
         agentService.registerServiceInMaster(serviceInfoDTO);
         return ResponseEntity.ok("Service registered successfully in agent and master.");
     }
@@ -38,21 +42,7 @@ public class AgentController {
      */
     @GetMapping("/services")
     public ResponseEntity<Collection<ServiceInfoDTO>> getAllRegisteredServices() {
-        Collection<ServiceInfoDTO> allServices = agentService.getAllServices();
-        return ResponseEntity.ok(allServices);
-    }
-
-    /**
-     * Обновляет информацию о состоянии здоровья указанного сервиса.
-     *
-     * @param serviceHealthInfo информация о состоянии здоровья сервиса.
-     * @return Ответ без содержимого.
-     */
-//    @Deprecated // крч пока хз
-    @PostMapping("/update-service-health")
-    public ResponseEntity<Void> updateServiceHealth(@RequestBody ServiceHealthInfo serviceHealthInfo) {
-        serviceHealthRegistry.updateServiceHealth(serviceHealthInfo.serviceName(), serviceHealthInfo.healthStatus());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(serviceRegistry.getAllServices());
     }
 
     /**
