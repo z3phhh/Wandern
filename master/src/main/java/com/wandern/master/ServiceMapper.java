@@ -5,22 +5,40 @@ import com.wandern.clients.ServiceInfoDTO;
 import com.wandern.clients.ServiceStatus;
 import com.wandern.master.entity.Metrics;
 import com.wandern.master.entity.RegisteredService;
-import org.mapstruct.*;
 
 import java.time.LocalDateTime;
 
-@Mapper(componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public abstract class ServiceMapper {
-    public abstract RegisteredService toEntity(ServiceInfoDTO DTO);
+public class ServiceMapper {
 
-    public abstract Metrics toEntity(MetricsDTO DTO);
+    public static RegisteredService toEntity(ServiceInfoDTO DTO) {
+        return RegisteredService.builder()
+                .deploymentId(DTO.deploymentId())
+                .deploymentUnit(DTO.deploymentUnit())
+                .system(DTO.system())
+                .serviceUrl(DTO.serviceUrl())
+                .contextPath(DTO.contextPath())
+                .port(DTO.port())
+                .ip(DTO.ip())
+                .status(ServiceStatus.UP)
+                .registrationTime(LocalDateTime.now())
+                .build();
+    }
 
-    public abstract void updateMetricsFromDTO(MetricsDTO dto, @MappingTarget Metrics entity);
+    public static Metrics toEntity(MetricsDTO DTO) {
+        return Metrics.builder()
+                .systemLoad(DTO.systemLoad())
+                .jvmCpuLoad(DTO.jvmCpuLoad())
+                .usedMemoryBytes(DTO.usedMemoryBytes())
+                .freeMemoryBytes(DTO.freeMemoryBytes())
+                .totalThreads(DTO.totalThreads())
+                .build();
+    }
 
-    @AfterMapping
-    protected void setAdditionalFields(@MappingTarget RegisteredService entity) {
-        entity.setRegistrationTime(LocalDateTime.now());
-        entity.setStatus(ServiceStatus.UP);
+    public static void updateMetricsFromDTO(MetricsDTO DTO, Metrics metrics) {
+        metrics.setSystemLoad(DTO.systemLoad());
+        metrics.setJvmCpuLoad(DTO.jvmCpuLoad());
+        metrics.setUsedMemoryBytes(DTO.usedMemoryBytes());
+        metrics.setFreeMemoryBytes(DTO.freeMemoryBytes());
+        metrics.setTotalThreads(DTO.totalThreads());
     }
 }

@@ -68,7 +68,7 @@ public class MetricsAndInfoController {
 
     @GetMapping("/metrics")
     public ResponseEntity<MetricsDTO> provideMetrics() {
-        logger.info("[STARTER] Received request to provide metrics.");
+        logger.info("Received request to provide metrics.");
         MetricsDTO metricsDTO = metricsCollector.collectMetrics();
 
 //        logger.info("Returning metrics: {}", metricsDTO);

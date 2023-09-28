@@ -1,5 +1,6 @@
-package com.wandern.agent.health;
+package com.wandern.agent.registry;
 
+import com.wandern.agent.health.model.HealthInfo;
 import com.wandern.starter.health.HealthStatus;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ public class ServiceHealthRegistry {
     /**
      * Map serviceHealthInfoMap хранит информацию о состоянии здоровья сервисов
      */
-    private final Map<String, ServiceHealthInfo> serviceHealthInfoMap = new ConcurrentHashMap<>();
+    private final Map<String, HealthInfo> serviceHealthInfoMap = new ConcurrentHashMap<>();
 
     /**
      * Метод для обновления состояний здоровья сервисов
@@ -24,14 +25,14 @@ public class ServiceHealthRegistry {
      * @param healthStatus
      */
     public void updateServiceHealth(String serviceName, HealthStatus healthStatus) {
-        serviceHealthInfoMap.put(serviceName, new ServiceHealthInfo(serviceName, healthStatus));
+        serviceHealthInfoMap.put(serviceName, new HealthInfo(serviceName, healthStatus));
     }
 
     /**
      * Мето для обновления состояний здоровья сервисов
      * @return
      */
-    public Map<String, ServiceHealthInfo> getAllServiceHealthInfo() {
+    public Map<String, HealthInfo> getAllServiceHealthInfo() {
         return Collections.unmodifiableMap(serviceHealthInfoMap);
     }
 }

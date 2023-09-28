@@ -2,12 +2,10 @@ package com.wandern.master;
 
 import com.wandern.clients.MetricsDTO;
 import com.wandern.clients.ServiceInfoDTO;
-//import com.wandern.clients.ServiceStatus;
 import com.wandern.master.entity.Metrics;
 import com.wandern.master.entity.RegisteredService;
 import com.wandern.master.repository.MetricsRepository;
 import com.wandern.master.repository.RegisteredServiceRepository;
-//import com.wandern.serviceregistrystarter.health.HealthStatus;
 import com.wandern.starter.health.HealthStatus;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -17,12 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import javax.management.ServiceNotFoundException;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
-//import static com.wandern.clients.ServiceStatus.DOWN;
-//import static com.wandern.clients.ServiceStatus.UP;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +28,6 @@ public class MasterService {
 
     private final RegisteredServiceRepository registeredServiceRepository;
     private final MetricsRepository metricsRepository;
-    private final ServiceMapper serviceMapper;
 
     /**
      * Регистрирует сервис в глобальной топологии.
@@ -42,9 +37,7 @@ public class MasterService {
      * @return ответ о результате регистрации.
      */
     public ResponseEntity<String> registerService(ServiceInfoDTO serviceInfoDTO) {
-//        logger.info("Original ServiceInfoData: {}", serviceInfoDTO);
-        RegisteredService registeredService = serviceMapper.toEntity(serviceInfoDTO);
-//        logger.info("Mapped to RegisteredService entity: {}", registeredService);
+        RegisteredService registeredService = ServiceMapper.toEntity(serviceInfoDTO);
 
         try {
             registeredServiceRepository.save(registeredService);
@@ -52,7 +45,9 @@ public class MasterService {
             return ResponseEntity.ok("Service registered successfully in master.");
         } catch (Exception e) {
             logger.error("Error registering service: {}", serviceInfoDTO, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to register service in master.");
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to register service in master.");
         }
     }
 
@@ -67,35 +62,38 @@ public class MasterService {
      */
     @Transactional
     public ResponseEntity<String> saveMetrics(String deploymentId, MetricsDTO metricsDTO) {
-//        logger.info("Attempting to find RegisteredService with deploymentId: {}", deploymentId);
+        RegisteredService registeredService = getRegisteredServiceOrThrow(deploymentId);
 
-        RegisteredService registeredService = registeredServiceRepository.findByDeploymentId(deploymentId)
-                .orElseThrow(() -> {
-                    logger.warn("[METRICS] No RegisteredService found for deploymentId: {}", deploymentId);
-                    return new RuntimeException("RegisteredService not found");
+        Metrics metrics = metricsRepository.findByRegisteredService(registeredService)
+                .map(existingMetrics -> {
+                    ServiceMapper.updateMetricsFromDTO(metricsDTO, existingMetrics);
+                    return existingMetrics;
+                })
+                .orElseGet(() -> {
+                    Metrics newMetrics = ServiceMapper.toEntity(metricsDTO);
+                    newMetrics.setRegisteredService(registeredService);
+                    return newMetrics;
                 });
-
-        Optional<Metrics> optionalExistingMetrics = metricsRepository.findByRegisteredService(registeredService);
-
-        Metrics metrics;
-        if (optionalExistingMetrics.isPresent()) {
-            metrics = optionalExistingMetrics.get();
-            serviceMapper.updateMetricsFromDTO(metricsDTO, metrics);
-        } else {
-            metrics = serviceMapper.toEntity(metricsDTO);
-            metrics.setRegisteredService(registeredService);
-        }
-
         metrics.setTimestamp(LocalDateTime.now());
 
         try {
             metricsRepository.save(metrics);
-            logger.info("[METRICS] Metrics saved successfully for deploymentId: {}", deploymentId);
+            logger.info("Metrics saved successfully for deploymentId: {}", deploymentId);
             return ResponseEntity.ok("Metrics saved successfully.");
         } catch (Exception e) {
-            logger.error("[METRICS] Error saving metrics for deploymentId: {}", deploymentId, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error saving metrics.");
+            logger.error("Error saving metrics for deploymentId: {}", deploymentId, e);
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error saving metrics for deploymentId: " + deploymentId);
         }
+    }
+
+    private RegisteredService getRegisteredServiceOrThrow(String deploymentId) {
+        return registeredServiceRepository.findByDeploymentId(deploymentId)
+                .orElseThrow(() -> {
+                    logger.warn("No RegisteredService found for deploymentId: {}", deploymentId);
+                    return new RuntimeException("RegisteredService not found for deploymentId: " + deploymentId);
+                });
     }
 
     /**
@@ -107,21 +105,16 @@ public class MasterService {
      * @param healthStatus статус здоровья сервиса.
      * @return ответ о результате обновления статуса.
      */
-//    @Deprecated // старая реализация
-    public ResponseEntity<String> updateServiceStatus(String deploymentId, HealthStatus healthStatus) {
-        RegisteredService registeredService = registeredServiceRepository.findByDeploymentId(deploymentId)
-                .orElse(null);
-
-        if (registeredService == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Service not found");
-        }
+    @Transactional
+    public ResponseEntity<String> updateServiceStatus(String deploymentId,
+                                                      HealthStatus healthStatus) {
+        RegisteredService registeredService = getRegisteredServiceOrThrow(deploymentId);
 
         if (healthStatus.status() == Status.DOWN) {
             registeredServiceRepository.delete(registeredService);
             return ResponseEntity.ok("Service removed from master");
         } else {
-//             registeredService.setStatus(healthStatus.status());
-             registeredServiceRepository.save(registeredService);
+            registeredServiceRepository.save(registeredService);
             return ResponseEntity.ok("Service status updated in master");
         }
     }

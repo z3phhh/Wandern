@@ -1,5 +1,6 @@
 package com.wandern.agent;
 
+import com.wandern.agent.registry.ServiceRegistry;
 import com.wandern.clients.MetricsDTO;
 import com.wandern.clients.ServiceInfoDTO;
 import lombok.RequiredArgsConstructor;
@@ -109,39 +110,39 @@ public class AgentService {
     @Scheduled(fixedRateString = "#{${metrics.collection.interval.seconds} * 1000}")
     public void collectMetricsFromRegisteredServices() {
         Collection<ServiceInfoDTO> allServices = serviceRegistry.getAllServices();
-//        logger.info("All registered services: {}", allServices);
+        logger.info("All registered services: {}", allServices);
 
         if (allServices.isEmpty()) {
-            logger.info("[METRICS] No registered services found. Skipping metrics collection.");
+            logger.info("No registered services found. Skipping metrics collection.");
             return;
         }
 
         for (ServiceInfoDTO service : allServices) {
             String metricsUrl = service.serviceUrl() + service.contextPath() + "/metrics";
-//            logger.info("Requesting metrics from service: {}", metricsUrl);
+            logger.info("Requesting metrics from service: {}", metricsUrl);
 
             try {
                 MetricsDTO metricsDTO = restTemplate.getForObject(metricsUrl, MetricsDTO.class);
-//                logger.info("Received metrics from service {}: {}", metricsUrl, metricsDTO);
+                logger.info("Received metrics from service {}: {}", metricsUrl, metricsDTO);
 
                 String metricsEndpoint = masterServiceUrl + "/master/api/v1/services/" + service.deploymentId() + "/metrics";
-//                logger.info("Sending metrics to master endpoint: {}", metricsEndpoint);
+                logger.info("Sending metrics to master endpoint: {}", metricsEndpoint);
 
                 ResponseEntity<String> response = restTemplate.postForEntity(metricsEndpoint, metricsDTO, String.class);
 
-//                if (response.getStatusCode().is2xxSuccessful()) {
-//                    logger.info("Metrics successfully sent to master for service: {}", metricsUrl);
-//                } else {
-//                    logger.error("Failed to send metrics to master for service: {}. Response: {}", metricsUrl, response);
-//                }
+                if (response.getStatusCode().is2xxSuccessful()) {
+                    logger.info("Metrics successfully sent to master for service: {}", metricsUrl);
+                } else {
+                    logger.error("Failed to send metrics to master for service: {}. Response: {}", metricsUrl, response);
+                }
             } catch (ResourceAccessException e) {
                 if (e.getCause() instanceof ConnectException) {
-                    logger.warn("[METRICS] Service {} is not available or removed from load balancer. Skipping metrics collection for now.", metricsUrl);
+                    logger.warn("Service {} is not available or removed from load balancer. Skipping metrics collection for now.", metricsUrl);
                 } else {
-                    logger.error("[METRICS] Error accessing service {}.", metricsUrl, e);
+                    logger.error("Error accessing service {}.", metricsUrl, e);
                 }
             } catch (RestClientException e) {
-                logger.error("[METRICS] Failed to send metrics to master for service: {}.", metricsUrl, e);
+                logger.error("Failed to send metrics to master for service: {}.", metricsUrl, e);
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.wandern.master;
 
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
@@ -13,5 +14,6 @@ public class TestcontainersTest extends AbstractTestcontainers {
         assertThat(postgreSQLContainer.isRunning()).isTrue();
         assertThat(postgreSQLContainer.isCreated()).isTrue();
     }
+
 
 }

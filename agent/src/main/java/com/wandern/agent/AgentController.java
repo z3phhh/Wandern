@@ -1,8 +1,9 @@
 package com.wandern.agent;
 
 import com.wandern.agent.health.HealthCheckAgent;
-import com.wandern.agent.health.ServiceHealthInfo;
-import com.wandern.agent.health.ServiceHealthRegistry;
+import com.wandern.agent.health.model.HealthInfo;
+import com.wandern.agent.registry.ServiceHealthRegistry;
+import com.wandern.agent.registry.ServiceRegistry;
 import com.wandern.clients.ServiceInfoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,7 @@ public class AgentController {
     @PostMapping("/register")
     public ResponseEntity<String> registerService(@RequestBody ServiceInfoDTO serviceInfoDTO) {
         agentService.registerServiceInAgent(serviceInfoDTO);
-        healthCheckAgent.registerService(serviceInfoDTO);
+        healthCheckAgent.startMonitoringService(serviceInfoDTO);
         agentService.registerServiceInMaster(serviceInfoDTO);
         return ResponseEntity.ok("Service registered successfully in agent and master.");
     }
@@ -51,7 +52,7 @@ public class AgentController {
      * @return Ответ с картой состояния здоровья сервисов.
      */
     @GetMapping("/services-health")
-    public ResponseEntity<Map<String, ServiceHealthInfo>> getServicesHealth() {
+    public ResponseEntity<Map<String, HealthInfo>> getServicesHealth() {
         return ResponseEntity.ok(serviceHealthRegistry.getAllServiceHealthInfo());
     }
 }

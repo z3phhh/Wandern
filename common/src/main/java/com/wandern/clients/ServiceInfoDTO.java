@@ -9,4 +9,5 @@ public record ServiceInfoDTO(
     int port,
     String ip,
     ServiceStatus status
-) {}
+) {
+}

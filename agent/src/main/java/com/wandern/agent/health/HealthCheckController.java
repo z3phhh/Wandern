@@ -1,7 +1,5 @@
 package com.wandern.agent.health;
 
-import com.wandern.starter.health.HealthCheckAggregator;
-import com.wandern.starter.health.HealthStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +14,6 @@ import java.util.Map;
 @RequestMapping("/api/v1/health")
 public class HealthCheckController {
 
-    private final HealthCheckAggregator healthCheckAggregator;
     private final HealthCheckAgent healthCheckAgent;
 
     /**
@@ -28,11 +25,6 @@ public class HealthCheckController {
     public ResponseEntity<Map<String, Status>> getServicesStatus() {
         return ResponseEntity.ok(healthCheckAgent.getServiceStatuses());
     }
-
-    /*    @GetMapping
-    public ResponseEntity<Map<String, HealthStatus>> getHealthStatus() {
-        return ResponseEntity.ok(healthCheckAggregator.aggregateStatus());
-    }*/
 
     // TODO : сделать вывод расписания HC для каждого сервиса
 }
