@@ -30,10 +30,12 @@ public class Metrics {
     )
     private Long id;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(
+            cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER)
     @JoinColumn(
-            name = "id",
-            referencedColumnName = "registered_id",
+            name = "registered_service_id",
+            referencedColumnName = "id",
             foreignKey = @ForeignKey(
                     name = "fk_metrics_service_registered_service"
             )
@@ -44,7 +46,11 @@ public class Metrics {
 
     private double systemLoad;
     private double jvmCpuLoad;
-    private long usedMemoryBytes;
-    private long freeMemoryBytes;
+
+    @Column(name = "used_memory_mb")
+    private long usedMemoryMB;
+
+    @Column(name = "free_memory_mb")
+    private long freeMemoryMB;
     private int totalThreads;
 }

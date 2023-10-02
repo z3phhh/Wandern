@@ -1,23 +1,22 @@
 package com.wandern.master;
 
 import com.wandern.clients.MetricsDTO;
-import com.wandern.clients.ServiceInfoDTO;
+import com.wandern.clients.ServiceStatusDTO;
 import com.wandern.master.entity.Metrics;
 import com.wandern.master.entity.RegisteredService;
 import com.wandern.master.repository.MetricsRepository;
 import com.wandern.master.repository.RegisteredServiceRepository;
-import com.wandern.starter.health.HealthStatus;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.actuate.health.Status;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import javax.management.ServiceNotFoundException;
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 
 @Service
@@ -28,6 +27,8 @@ public class MasterService {
 
     private final RegisteredServiceRepository registeredServiceRepository;
     private final MetricsRepository metricsRepository;
+    private final MasterMapper masterMapper;
+    private final JdbcTemplate jdbcTemplate;
 
     /**
      * Регистрирует сервис в глобальной топологии.
@@ -36,8 +37,8 @@ public class MasterService {
      * @param serviceInfoDTO информация о регистрируемом сервисе.
      * @return ответ о результате регистрации.
      */
-    public ResponseEntity<String> registerService(ServiceInfoDTO serviceInfoDTO) {
-        RegisteredService registeredService = ServiceMapper.toEntity(serviceInfoDTO);
+    public ResponseEntity<String> registerService(com.wandern.clients.ServiceInfoDTO serviceInfoDTO) {
+        RegisteredService registeredService = MasterMapper.toEntity(serviceInfoDTO);
 
         try {
             registeredServiceRepository.save(registeredService);
@@ -66,11 +67,11 @@ public class MasterService {
 
         Metrics metrics = metricsRepository.findByRegisteredService(registeredService)
                 .map(existingMetrics -> {
-                    ServiceMapper.updateMetricsFromDTO(metricsDTO, existingMetrics);
+                    MasterMapper.updateMetricsFromDTO(metricsDTO, existingMetrics);
                     return existingMetrics;
                 })
                 .orElseGet(() -> {
-                    Metrics newMetrics = ServiceMapper.toEntity(metricsDTO);
+                    Metrics newMetrics = MasterMapper.toEntity(metricsDTO);
                     newMetrics.setRegisteredService(registeredService);
                     return newMetrics;
                 });
@@ -96,27 +97,19 @@ public class MasterService {
                 });
     }
 
-    /**
-     * Обновляет статус сервиса на основе предоставленного статуса здоровья.
-     * Если статус "DOWN", сервис удаляется из базы данных.
-     * В противном случае статус сервиса обновляется.
-     *
-     * @param deploymentId идентификатор развертывания сервиса.
-     * @param healthStatus статус здоровья сервиса.
-     * @return ответ о результате обновления статуса.
-     */
     @Transactional
-    public ResponseEntity<String> updateServiceStatus(String deploymentId,
-                                                      HealthStatus healthStatus) {
-        RegisteredService registeredService = getRegisteredServiceOrThrow(deploymentId);
-
-        if (healthStatus.status() == Status.DOWN) {
-            registeredServiceRepository.delete(registeredService);
-            return ResponseEntity.ok("Service removed from master");
-        } else {
-            registeredServiceRepository.save(registeredService);
-            return ResponseEntity.ok("Service status updated in master");
-        }
+    public void updateServiceStatus(ServiceStatusDTO statusUpdate) {
+        Optional.ofNullable(statusUpdate)
+                .filter(update -> "DOWN".equals(update.status()))
+                .ifPresent(update -> {
+                    registeredServiceRepository.deleteByDeploymentId(update.deploymentId());
+                    logger.info("Service with deploymentId: {} has been removed due to DOWN status.", update.deploymentId());
+                });
     }
 
+/*    public List<ServiceDetailsDTO> getAllServiceDetails() {
+        return registeredServiceRepository.findAllBy().stream()
+                .map(serviceMapper::convertToDTO)
+                .collect(Collectors.toList());
+    }*/
 }

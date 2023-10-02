@@ -29,7 +29,7 @@ public class AgentController {
      * @return Ответ с сообщением о успешной регистрации.
      */
     @PostMapping("/register")
-    public ResponseEntity<String> registerService(@RequestBody ServiceInfoDTO serviceInfoDTO) {
+    public ResponseEntity<String> registerAndMonitorService(@RequestBody ServiceInfoDTO serviceInfoDTO) {
         agentService.registerServiceInAgent(serviceInfoDTO);
         healthCheckAgent.startMonitoringService(serviceInfoDTO);
         agentService.registerServiceInMaster(serviceInfoDTO);
@@ -51,7 +51,7 @@ public class AgentController {
      *
      * @return Ответ с картой состояния здоровья сервисов.
      */
-    @GetMapping("/services-health")
+    @GetMapping("/services-health") // not work
     public ResponseEntity<Map<String, HealthInfo>> getServicesHealth() {
         return ResponseEntity.ok(serviceHealthRegistry.getAllServiceHealthInfo());
     }

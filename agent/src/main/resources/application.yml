@@ -11,15 +11,15 @@ master:
     url: http://localhost:8080
   registration:
     retry:
-      interval: 50
+      interval: 15
 
 healthcheck:
-  interval: 30
+  interval: 10
 
 metrics:
   collection:
     interval:
-      seconds: 30
+      seconds: 10
 
 deployment:
   prefix: mragent
