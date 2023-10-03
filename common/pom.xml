@@ -10,6 +10,7 @@
     </parent>
 
     <groupId>com.wandern.clients</groupId>
+    <packaging>jar</packaging>
     <artifactId>common</artifactId>
 
     <properties>

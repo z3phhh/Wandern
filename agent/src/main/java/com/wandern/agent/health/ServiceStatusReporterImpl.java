@@ -21,7 +21,7 @@ public class ServiceStatusReporterImpl implements ServiceStatusReporter {
     private static final Logger logger = LoggerFactory.getLogger(AgentService.class);
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${master.service.url}")
+    @Value("${master.url}")
     private String masterServiceUrl;
 
     @Override

@@ -24,7 +24,7 @@ public class MetricsAndInfoController {
     private final ServiceInfoCollector serviceInfoCollector;
     private final MetricsCollector metricsCollector;
 
-    @Value("${agent.service.url}")
+    @Value("${agent.url}")
     private String agentServiceUrl;
     // вынести в конф
 

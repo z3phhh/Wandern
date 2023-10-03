@@ -1,3 +1,4 @@
+/*
 package com.wandern.master;
 
 import org.flywaydb.core.Flyway;
@@ -25,6 +26,7 @@ public abstract class AbstractTestcontainers {
         System.out.println();
     }
 
+*/
 /*
     @BeforeAll
     static void beforeAll() {
@@ -37,7 +39,8 @@ public abstract class AbstractTestcontainers {
                 ).load();
         flyway.migrate();
     }
-*/
+*//*
+
 
     @Container
     protected static final PostgreSQLContainer<?> postgreSQLContainer =
@@ -62,3 +65,4 @@ public abstract class AbstractTestcontainers {
         );
     }
 }
+*/

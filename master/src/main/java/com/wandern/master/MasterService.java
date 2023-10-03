@@ -107,9 +107,4 @@ public class MasterService {
                 });
     }
 
-/*    public List<ServiceDetailsDTO> getAllServiceDetails() {
-        return registeredServiceRepository.findAllBy().stream()
-                .map(serviceMapper::convertToDTO)
-                .collect(Collectors.toList());
-    }*/
 }

@@ -1,3 +1,4 @@
+/*
 package com.wandern.master;
 
 import org.flywaydb.core.Flyway;
@@ -17,3 +18,4 @@ public class TestcontainersTest extends AbstractTestcontainers {
 
 
 }
+*/

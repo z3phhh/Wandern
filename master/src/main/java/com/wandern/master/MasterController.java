@@ -22,7 +22,6 @@ public class MasterController {
     private final MasterService masterService;
     private final MasterJDBCDataAccessService dataAccessService;
 
-//    private final RegisteredServiceRepository registeredServiceRepository;//dele
 
     /**
      * Регистрирует сервис в глобальной топологии.
@@ -53,14 +52,6 @@ public class MasterController {
         masterService.updateServiceStatus(statusUpdate);
         return ResponseEntity.ok().build();
     }
-
-/*
-    @GetMapping
-    public List<ServiceDetailsDTO> getAllServiceDetails() {
-        return masterService.getAllServiceDetails();
-    }
-*/
-
 
     // with jdbc template
     @GetMapping

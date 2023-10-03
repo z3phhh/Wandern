@@ -33,7 +33,7 @@ public class AgentService {
     private final AtomicInteger retryCount = new AtomicInteger(0);
     private final Map<String, ScheduledFuture<?>> retryFutures = new ConcurrentHashMap<>();
 
-    @Value("${master.service.url}")
+    @Value("${master.url}")
     private String masterServiceUrl;
 
     private final RestTemplate restTemplate;

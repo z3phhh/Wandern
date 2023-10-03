@@ -3,10 +3,6 @@ package com.wandern.master;
 import com.wandern.clients.MetricsDTO;
 import com.wandern.clients.ServiceInfoDTO;
 import com.wandern.clients.ServiceStatus;
-import com.wandern.master.DTO.Metrics2DTO;
-import com.wandern.master.DTO.ServiceDetailsDTO;
-import com.wandern.master.DTO.projection.MetricsProjection;
-import com.wandern.master.DTO.projection.ServiceDetailsProjection;
 import com.wandern.master.entity.Metrics;
 import com.wandern.master.entity.RegisteredService;
 import com.wandern.master.repository.MetricsRepository;
@@ -51,30 +47,6 @@ public class MasterMapper {
         metrics.setUsedMemoryMB(DTO.usedMemoryMB());
         metrics.setFreeMemoryMB(DTO.freeMemoryMB());
         metrics.setTotalThreads(DTO.totalThreads());
-    }
-
-    public ServiceDetailsDTO convertToDTO(ServiceDetailsProjection projection) {
-        MetricsProjection metricsProjection = projection.getMetrics();
-
-        Metrics2DTO metrics2DTO = new Metrics2DTO(
-                metricsProjection.getSystemLoad(),
-                metricsProjection.getJvmCpuLoad(),
-                metricsProjection.getUsedMemoryMB(),
-                metricsProjection.getFreeMemoryMB(),
-                metricsProjection.getTotalThreads()
-        );
-
-        return new ServiceDetailsDTO(
-                projection.getDeploymentId(),
-                projection.getDeploymentUnit(),
-                projection.getSystem(),
-                projection.getServiceUrl(),
-                projection.getContextPath(),
-                projection.getPort(),
-                projection.getIp(),
-                projection.getStatus().name(),
-                metrics2DTO
-        );
     }
 
 }
