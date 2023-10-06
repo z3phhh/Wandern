@@ -27,8 +27,6 @@ public class MasterService {
 
     private final RegisteredServiceRepository registeredServiceRepository;
     private final MetricsRepository metricsRepository;
-    private final MasterMapper masterMapper;
-    private final JdbcTemplate jdbcTemplate;
 
     /**
      * Регистрирует сервис в глобальной топологии.

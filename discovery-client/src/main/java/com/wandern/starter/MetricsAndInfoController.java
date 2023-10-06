@@ -35,31 +35,26 @@ public class MetricsAndInfoController {
         ServiceInfoDTO serviceInfoDTO = serviceInfoCollector.collectServiceInfo();
 
         String url = agentServiceUrl + "/ctx/api/v1/agent/register";
-        int maxAttempts = 3;
         int currentAttempt = 0;
 
-        while (currentAttempt < maxAttempts) {
+        for (;;) {
+            currentAttempt++;
             try {
                 ResponseEntity<String> response = restTemplate.postForEntity(url, serviceInfoDTO, String.class);
 
                 if (response.getStatusCode().is2xxSuccessful()) {
-                    logger.info("Service registered successfully at agent.");
+                    logger.info("Service registered successfully at agent on attempt {}.", currentAttempt);
                     return; // Если регистрация успешна, выходим из метода
                 } else {
-                    logger.error("Failed to register service at agent. Response: {}", response);
+                    logger.error("Failed to register service at agent on attempt {}. Response: {}", currentAttempt, response);
                 }
             } catch (ResourceAccessException e) {
-                logger.warn("Attempt {} of {}: Agent is not available. Retrying in 30 seconds...", currentAttempt + 1, maxAttempts);
-                currentAttempt++;
-                if (currentAttempt < maxAttempts) {
-                    try {
-                        Thread.sleep(30000); // Задержка в 30 секунд
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                        logger.error("Sleep interrupted during retry delay.", ie);
-                    }
-                } else {
-                    logger.error("Failed to register service at agent after {} attempts.", maxAttempts);
+                logger.warn("Attempt {}: Agent is not available. Retrying in 30 seconds...", currentAttempt);
+                try {
+                    Thread.sleep(30000); // Задержка в 30 секунд
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    logger.error("Sleep interrupted during retry delay.", ie);
                 }
             }
         }
