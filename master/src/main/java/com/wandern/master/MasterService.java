@@ -1,6 +1,7 @@
 package com.wandern.master;
 
 import com.wandern.clients.MetricsDTO;
+import com.wandern.clients.ServiceStatus;
 import com.wandern.clients.ServiceStatusDTO;
 import com.wandern.master.entity.Metrics;
 import com.wandern.master.entity.RegisteredService;
@@ -95,7 +96,7 @@ public class MasterService {
                 });
     }
 
-    @Transactional
+/*    @Transactional
     public void updateServiceStatus(ServiceStatusDTO statusUpdate) {
         Optional.ofNullable(statusUpdate)
                 .filter(update -> "DOWN".equals(update.status()))
@@ -103,6 +104,20 @@ public class MasterService {
                     registeredServiceRepository.deleteByDeploymentId(update.deploymentId());
                     logger.info("Service with deploymentId: {} has been removed due to DOWN status.", update.deploymentId());
                 });
-    }
+    }*/
 
+    @Transactional
+    public void updateServiceStatus(ServiceStatusDTO statusUpdate) {
+        Optional.ofNullable(statusUpdate)
+                .filter(update -> "DOWN".equals(update.status()))
+                .ifPresent(update -> {
+                    // Найти сервис по его deploymentId
+                    registeredServiceRepository.findByDeploymentId(update.deploymentId())
+                            .ifPresent(service -> {
+                                service.setStatus(ServiceStatus.DOWN);
+                                registeredServiceRepository.save(service);
+                                logger.info("Service with deploymentId: {} has been set to DOWN status.", update.deploymentId());
+                            });
+                });
+    }
 }

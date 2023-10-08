@@ -7,7 +7,7 @@ spring:
     name: agent
 
 master:
-  url: http://localhost:8080
+  url: http://localhost:9999
   registration:
     retry:
       interval: 15

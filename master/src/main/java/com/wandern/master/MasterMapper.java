@@ -15,8 +15,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class MasterMapper {
 
-    private final MetricsRepository metricsRepository;
-
     public static RegisteredService toEntity(ServiceInfoDTO DTO) {
         return RegisteredService.builder()
                 .deploymentId(DTO.deploymentId())

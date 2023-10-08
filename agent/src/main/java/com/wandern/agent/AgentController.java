@@ -15,6 +15,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/agent")
+@CrossOrigin
 public class AgentController {
 
     private final AgentService agentService;

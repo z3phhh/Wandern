@@ -36,7 +36,7 @@ public class ServiceStatusReporterImpl implements ServiceStatusReporter {
         } catch (HttpClientErrorException | HttpServerErrorException httpEx) {
             logger.error("Failed to send status to master for deploymentId {}. Response: {}", deploymentId, httpEx.getResponseBodyAsString(), httpEx);
         } catch (ResourceAccessException resourceEx) {
-            logger.warn("Failed to access master server at {}. Might be down or network issues.", targetUrl, resourceEx);
+            logger.warn("Failed to access master server at {}. Might be down or network issues.", targetUrl /*, resourceEx*/);
         } catch (Exception e) {
             logger.error("Unexpected error occurred while sending status to master for deploymentId {}", deploymentId, e);
         }

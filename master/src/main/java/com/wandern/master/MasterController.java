@@ -17,11 +17,11 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/services")
+@CrossOrigin
 public class MasterController {
 
     private final MasterService masterService;
     private final MasterJDBCDataAccessService dataAccessService;
-
 
     /**
      * Регистрирует сервис в глобальной топологии.
@@ -64,5 +64,12 @@ public class MasterController {
         return dataAccessService.selectServiceDetailsById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/set-down/{deploymentId}")
+    public ResponseEntity<Void> setServiceDown(@PathVariable String deploymentId) {
+        ServiceStatusDTO statusUpdate = new ServiceStatusDTO(deploymentId, "DOWN");
+        masterService.updateServiceStatus(statusUpdate);
+        return ResponseEntity.ok().build();
     }
 }

@@ -54,7 +54,7 @@ public class ServiceInfoCollector implements ApplicationContextAware {
                     contextPath,
                     port,
                     ip,
-                    ServiceStatus.UNKNOWN
+                    ServiceStatus.UP
             );
 
         } catch (UnknownHostException e) {

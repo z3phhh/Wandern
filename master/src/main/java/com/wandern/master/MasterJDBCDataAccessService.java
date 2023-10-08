@@ -19,7 +19,7 @@ public class MasterJDBCDataAccessService {
     public List<ServiceDetailsProjection> selectAllServiceDetails() {
         var sql = """
                 SELECT
-                    r.deployment_id, r.deployment_unit, r.system, r.service_url, 
+                    r.deployment_id, r.deployment_unit, r.system, r.service_url,
                     r.context_path, r.port, r.ip, r.status, 
                     m.system_load, m.jvm_cpu_load, m.used_memory_mb, m.free_memory_mb, m.total_threads 
                 FROM registered_service r 
@@ -33,7 +33,7 @@ public class MasterJDBCDataAccessService {
     public Optional<ServiceDetailsProjection> selectServiceDetailsById(Long id) {
         var sql = """
                 SELECT
-                    r.deployment_id, r.deployment_unit, r.system, r.service_url, 
+                    r.deployment_id, r.deployment_unit, r.system, r.service_url,
                     r.context_path, r.port, r.ip, r.status, 
                     m.system_load, m.jvm_cpu_load, m.used_memory_mb, m.free_memory_mb, m.total_threads 
                 FROM registered_service r 
