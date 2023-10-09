@@ -7,7 +7,7 @@ spring:
     name: agent
 
 master:
-  url: http://192.168.16.1:9999
+  url: http://master:8080
   registration:
     retry:
       interval: 15

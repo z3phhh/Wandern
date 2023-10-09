@@ -1,6 +1,5 @@
-package com.wandern.agent;
+package com.wandern.agent.registry;
 
-import com.wandern.agent.health.HealthCheckAgent;
 import com.wandern.clients.ServiceInfoDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,15 +10,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Класс, отвечающий за регистрацию сервисов.
+ * Этот компонент представляет собой реестр сервисов
  * Хранит информацию о всех зарегистрированных сервисах и предоставляет функциональность для их регистрации.
  */
 @Component
 @RequiredArgsConstructor
 public class ServiceRegistry {
 
+    /**
+     * Map registry хранит информацию о сервисах
+     */
     private final ConcurrentMap<String, ServiceInfoDTO> registry = new ConcurrentHashMap<>();
-    private final HealthCheckAgent healthCheckAgent;
 
     /**
      * Регистрирует сервис в реестре и инициирует его отслеживание через HealthCheckAgent.
@@ -28,7 +29,6 @@ public class ServiceRegistry {
      */
     public void registerService(ServiceInfoDTO serviceInfoDTO) {
         registry.put(serviceInfoDTO.deploymentId(), serviceInfoDTO);
-        healthCheckAgent.registerService(serviceInfoDTO); // для hc
     }
 
     public Optional<ServiceInfoDTO> getService(String deploymentId) {

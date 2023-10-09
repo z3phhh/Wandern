@@ -1,14 +1,14 @@
 package com.wandern.master;
 
 import com.wandern.clients.MetricsDTO;
-import com.wandern.clients.ServiceInfoDTO;
 import com.wandern.clients.ServiceStatusDTO;
-import com.wandern.master.repository.RegisteredServiceRepository;
+import com.wandern.master.DTO.ServiceDetailsDTO;
+import com.wandern.master.DTO.projection.ServiceDetailsProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
+import java.util.List;
 
 /**
  * Контроллер-маршрутизатор, предоставляющий API для раьоты с мастер-сервисом.
@@ -17,11 +17,11 @@ import javax.transaction.Transactional;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/services")
+@CrossOrigin
 public class MasterController {
 
     private final MasterService masterService;
-
-    private final RegisteredServiceRepository registeredServiceRepository;
+    private final MasterJDBCDataAccessService dataAccessService;
 
     /**
      * Регистрирует сервис в глобальной топологии.
@@ -30,7 +30,7 @@ public class MasterController {
      * @return ответ о результате регистрации.
      */
     @PostMapping("/register")
-    public ResponseEntity<String> registerService(@RequestBody ServiceInfoDTO serviceInfoDTO) {
+    public ResponseEntity<String> registerService(@RequestBody com.wandern.clients.ServiceInfoDTO serviceInfoDTO) {
         return masterService.registerService(serviceInfoDTO);
     }
 
@@ -47,20 +47,29 @@ public class MasterController {
         return masterService.saveMetrics(deploymentId, metricsDTO);
     }
 
-    /**
-     * Обновляет статус сервиса. Если статус "DOWN", сервис удаляется из базы данных.
-     *
-     * @param statusUpdate информация о статусе сервиса.
-     * @return ответ о результате обновления статуса.
-     */
-    @Transactional
     @PostMapping("/status/update")
     public ResponseEntity<Void> updateServiceStatus(@RequestBody ServiceStatusDTO statusUpdate) {
-        if ("DOWN".equals(statusUpdate.status())) {
-            registeredServiceRepository.deleteByDeploymentId(statusUpdate.deploymentId());
-            // + логи
-        }
+        masterService.updateServiceStatus(statusUpdate);
         return ResponseEntity.ok().build();
     }
 
+    // with jdbc template
+    @GetMapping
+    public List<ServiceDetailsProjection> getAllServiceDetails() {
+        return dataAccessService.selectAllServiceDetails();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ServiceDetailsProjection> getServiceDetailsById(@PathVariable Long id) {
+        return dataAccessService.selectServiceDetailsById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/set-down/{deploymentId}")
+    public ResponseEntity<Void> setServiceDown(@PathVariable String deploymentId) {
+        ServiceStatusDTO statusUpdate = new ServiceStatusDTO(deploymentId, "DOWN");
+        masterService.updateServiceStatus(statusUpdate);
+        return ResponseEntity.ok().build();
+    }
 }

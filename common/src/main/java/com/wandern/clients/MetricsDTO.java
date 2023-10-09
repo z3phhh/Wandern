@@ -1,9 +1,12 @@
 package com.wandern.clients;
 
-public record MetricsDTO(
+import lombok.Builder;
+
+@Builder
+public record MetricsDTO (
     double systemLoad,
     double jvmCpuLoad,
-    long usedMemoryBytes,
-    long freeMemoryBytes,
+    long usedMemoryMB,
+    long freeMemoryMB,
     int totalThreads
-) {}
+){}

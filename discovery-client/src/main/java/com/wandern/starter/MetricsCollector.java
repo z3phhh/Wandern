@@ -4,12 +4,16 @@ import java.lang.management.*;
 
 import com.wandern.clients.MetricsDTO;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 
 @Component
 @RequiredArgsConstructor
 public class MetricsCollector {
+
+    private static final Logger logger = LoggerFactory.getLogger(MetricsCollector.class);
 
     private final OperatingSystemMXBean operatingSystemMXBean;
     private final MemoryMXBean memoryMXBean;
@@ -22,17 +26,24 @@ public class MetricsCollector {
     }
 
     public MetricsDTO collectMetrics() {
-        double systemLoad = operatingSystemMXBean.getSystemLoadAverage();
-        double jvmCpuLoad = getJvmCpuLoad();
-        long usedMemoryBytes = memoryMXBean.getHeapMemoryUsage().getUsed();
-        long freeMemoryBytes = getFreeMemory();
+        double loadAverage = operatingSystemMXBean.getSystemLoadAverage();
+        logger.info("loadAverage: {}", loadAverage);
+        int availableProcessors = operatingSystemMXBean.getAvailableProcessors();
+        logger.info("availableProcessors: {}", availableProcessors);
+
+        double rawSystemLoad = (loadAverage / availableProcessors) * 100;
+        double systemLoad = Math.floor(rawSystemLoad * 100) / 100.0;
+
+        double jvmCpuLoad = Math.round(getJvmCpuLoad() * 10000) / 100.0;
+        long usedMemoryMB = memoryMXBean.getHeapMemoryUsage().getUsed() / (1024 * 1024);
+        long freeMemoryMB = getFreeMemory() / (1024 * 1024);
         int totalThreads = threadMXBean.getThreadCount();
 
         MetricsDTO metricsDTO = new MetricsDTO(
                 systemLoad,
                 jvmCpuLoad,
-                usedMemoryBytes,
-                freeMemoryBytes,
+                usedMemoryMB,
+                freeMemoryMB,
                 totalThreads
         );
 

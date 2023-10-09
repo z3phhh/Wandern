@@ -1,14 +1,14 @@
 server:
   servlet:
     context-path: /master
-  port: 9999
+  port: 8080
 
 spring:
   application:
     name: master
   datasource:
     password: 'password'
-    url: jdbc:postgresql://localhost:5432/master
+    url: jdbc:postgresql://postgres:5432/master
     username: 'wandern'
   jpa:
     hibernate:

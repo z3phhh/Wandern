@@ -1,7 +1,9 @@
 package com.wandern.starter;
 
+import com.wandern.starter.health.DefaultHealthCheck;
 import com.wandern.starter.health.HealthCheck;
-import com.wandern.starter.health.HealthCheckAggregator;
+//import com.wandern.starter.health.HealthCheckAggregator;
+import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,9 +21,13 @@ public class AutoConfiguration {
         return new RestTemplate();
     }
 
-    @Bean
+/*    @Bean
     public HealthCheckAggregator healthCheckAggregator(List<HealthCheck> healthChecks) {
         return new HealthCheckAggregator(healthChecks);
+    }*/
+    @Bean
+    public DefaultHealthCheck defaultHealthCheck() {
+        return new DefaultHealthCheck();
     }
 
     @Bean

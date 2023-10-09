@@ -10,6 +10,7 @@
     </parent>
 
     <groupId>com.wandern.starter</groupId>
+    <packaging>jar</packaging>
     <artifactId>discovery-client</artifactId>
 
     <properties>
