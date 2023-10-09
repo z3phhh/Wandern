@@ -11,8 +11,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Enumeration;
 import java.util.UUID;
 
 // TODO: MicroserviceCollectorInfo
@@ -39,7 +39,7 @@ public class ServiceInfoCollector implements ApplicationContextAware {
 
     public ServiceInfoDTO collectServiceInfo() {
         try {
-            String ip = InetAddress.getLocalHost().getHostAddress();
+            String ip = getExternalIpAddress();
             String serviceUrl = "http://" + ip + ":" + port;
             String deploymentUnit = generateShortUUID(12);
             String shortUUIDForDeploymentId = deploymentUnit.substring(0, 4);
@@ -57,9 +57,8 @@ public class ServiceInfoCollector implements ApplicationContextAware {
                     ServiceStatus.UP
             );
 
-        } catch (UnknownHostException e) {
-            logger.error("Error collecting ServiceInfo", e);
-            return null;
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -77,9 +76,31 @@ public class ServiceInfoCollector implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
+    private String getExternalIpAddress() throws SocketException {
+        Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+        while (interfaces.hasMoreElements()) {
+            NetworkInterface iface = interfaces.nextElement();
+            // Фильтруем 127.0.0.1 и неактивные интерфейсы
+            if (iface.isLoopback() || !iface.isUp()) {
+                continue;
+            }
+
+            Enumeration<InetAddress> addresses = iface.getInetAddresses();
+            while (addresses.hasMoreElements()) {
+                InetAddress addr = addresses.nextElement();
+                // Проверка на IPv4
+                if (addr instanceof Inet4Address) {
+                    return addr.getHostAddress();
+                }
+            }
+        }
+        return null;
+    }
+
     public ServiceInfoDTO getServiceInfoData() {
         return serviceInfoDTO;
     }
+
 
 }
 
