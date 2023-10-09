@@ -80,15 +80,18 @@ public class ServiceInfoCollector implements ApplicationContextAware {
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
         while (interfaces.hasMoreElements()) {
             NetworkInterface iface = interfaces.nextElement();
-            // Фильтруем 127.0.0.1 и неактивные интерфейсы
             if (iface.isLoopback() || !iface.isUp()) {
+                continue;
+            }
+
+            // проверка на имя сетевого интерфейса
+            if (!"enp9s0".equals(iface.getName())) {
                 continue;
             }
 
             Enumeration<InetAddress> addresses = iface.getInetAddresses();
             while (addresses.hasMoreElements()) {
                 InetAddress addr = addresses.nextElement();
-                // Проверка на IPv4
                 if (addr instanceof Inet4Address) {
                     return addr.getHostAddress();
                 }
