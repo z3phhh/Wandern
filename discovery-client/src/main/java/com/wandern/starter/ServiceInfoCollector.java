@@ -84,19 +84,16 @@ public class ServiceInfoCollector implements ApplicationContextAware {
                 continue;
             }
 
-            // проверка на имя сетевого интерфейса
-            if (!"enp9s0".equals(iface.getName())) {
-                continue;
-            }
-
             Enumeration<InetAddress> addresses = iface.getInetAddresses();
             while (addresses.hasMoreElements()) {
                 InetAddress addr = addresses.nextElement();
                 if (addr instanceof Inet4Address) {
+                    logger.info("Found IP address: " + addr.getHostAddress() + " for interface: " + iface.getName());
                     return addr.getHostAddress();
                 }
             }
         }
+        logger.warn("No suitable IP address found.");
         return null;
     }
 
