@@ -1,12 +1,13 @@
 stages:
   - sonar-scan
 
+
 sonarqube-check:
   stage: sonar-scan
   tags:
     - docker
   image:
-    name: sonarsourse/sonar-scanner-cli:latest
+    name: sonarsource/sonar-scanner-cli:latest
     entrypoint: [""]
   variables:
     SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Defines the location of the analysis task cache
@@ -16,5 +17,5 @@ sonarqube-check:
     paths:
       - .sonar/cache
   script:
-    - sonar:sonar
+    - sonar-scanner
   allow_failure: true
