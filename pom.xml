@@ -26,8 +26,6 @@
         <spring.boot.maven.plugin.version>2.5.7</spring.boot.maven.plugin.version>
         <spring.cloud-version>2020.0.3</spring.cloud-version>
         <image>z3phhh/${project.artifactId}:${project.version}</image>
-        <sonar.projectKey>z3phhh_Wandern_AYsfRkxn78XCN-v1P1t_</sonar.projectKey>
-        <sonar.qualitygate.wait>true</sonar.qualitygate.wait>
     </properties>
 
     <dependencyManagement>
