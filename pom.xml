@@ -26,6 +26,7 @@
         <spring.boot.maven.plugin.version>2.5.7</spring.boot.maven.plugin.version>
         <spring.cloud-version>2020.0.3</spring.cloud-version>
         <image>z3phhh/${project.artifactId}:${project.version}</image>
+        <property name="sonar.java.binaries" value="target"/>
     </properties>
 
     <dependencyManagement>

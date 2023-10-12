@@ -1,0 +1,7 @@
+com/wandern/starter/ServiceInfoCollector.class
+com/wandern/starter/health/DefaultHealthCheck.class
+com/wandern/starter/health/HealthCheck.class
+com/wandern/starter/MetricsCollector.class
+com/wandern/starter/health/HealthStatus.class
+com/wandern/starter/MetricsAndInfoController.class
+com/wandern/starter/AutoConfiguration.class

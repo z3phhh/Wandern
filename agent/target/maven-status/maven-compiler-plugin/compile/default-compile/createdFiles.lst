@@ -1,0 +1,12 @@
+com/wandern/agent/registry/ServiceHealthRegistry.class
+com/wandern/agent/registry/ServiceRegistry.class
+com/wandern/agent/AgentController.class
+com/wandern/agent/health/ServiceStatusReporterImpl.class
+com/wandern/agent/health/HealthCheckAgent.class
+com/wandern/agent/health/model/HealthInfo.class
+com/wandern/agent/health/ServiceStatusReporter.class
+com/wandern/agent/AgentService.class
+com/wandern/agent/AgentApplication.class
+com/wandern/agent/health/HealthCheckController.class
+com/wandern/agent/health/ServiceHealthChecker.class
+com/wandern/agent/health/ServiceHealthCheckerImpl.class
