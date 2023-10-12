@@ -18,7 +18,7 @@ import java.util.Objects;
 @Component
 public class ServiceHealthCheckerImpl implements ServiceHealthChecker {
 
-    private static final Logger logger = LoggerFactory.getLogger(AgentService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceHealthCheckerImpl.class);
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override

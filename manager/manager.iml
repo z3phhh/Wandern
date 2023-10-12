@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4">
   <component name="SonarLintModuleSettings">
+    <option name="idePathPrefix" value="manager" />
     <option name="uniqueId" value="a8becf20-3140-4181-9d15-290e4e504b46" />
   </component>
 </module>

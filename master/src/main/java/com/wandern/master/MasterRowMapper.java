@@ -14,7 +14,7 @@ public class MasterRowMapper implements RowMapper<ServiceDetailsProjection> {
 
     @Override
     public ServiceDetailsProjection mapRow(ResultSet rs, int rowNum) throws SQLException {
-        MetricsProjection metrics = new MetricsProjection(
+        var metrics = new MetricsProjection(
             rs.getDouble("system_load"),
             rs.getDouble("jvm_cpu_load"),
             rs.getLong("used_memory_mb"),

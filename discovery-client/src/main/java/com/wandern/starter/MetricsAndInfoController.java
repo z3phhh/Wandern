@@ -32,10 +32,10 @@ public class MetricsAndInfoController {
     public void registerService() {
         logger.info("Service registration triggered.");
 
-        ServiceInfoDTO serviceInfoDTO = serviceInfoCollector.collectServiceInfo();
+        var serviceInfoDTO = serviceInfoCollector.collectServiceInfo();
 
         String url = agentServiceUrl + "/ctx/api/v1/agent/register";
-        int currentAttempt = 0;
+        var currentAttempt = 0;
 
         for (;;) {
             currentAttempt++;
@@ -64,9 +64,8 @@ public class MetricsAndInfoController {
     @GetMapping("/metrics")
     public ResponseEntity<MetricsDTO> provideMetrics() {
         logger.info("Received request to provide metrics.");
-        MetricsDTO metricsDTO = metricsCollector.collectMetrics();
+        var metricsDTO = metricsCollector.collectMetrics();
 
-//        logger.info("Returning metrics: {}", metricsDTO);
         return ResponseEntity.ok(metricsDTO);
     }
 }

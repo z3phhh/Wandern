@@ -1,7 +1,6 @@
 package com.wandern.master;
 
 import com.wandern.master.DTO.projection.ServiceDetailsProjection;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;

@@ -5,7 +5,6 @@ import com.wandern.clients.ServiceInfoDTO;
 import com.wandern.clients.ServiceStatus;
 import com.wandern.master.entity.Metrics;
 import com.wandern.master.entity.RegisteredService;
-import com.wandern.master.repository.MetricsRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 

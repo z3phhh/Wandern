@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4">
   <component name="SonarLintModuleSettings">
+    <option name="idePathPrefix" value="apigw" />
     <option name="uniqueId" value="32b100f9-c681-447d-a15e-bc589030a45b" />
   </component>
 </module>

@@ -2,7 +2,6 @@ package com.wandern.master;
 
 import com.wandern.clients.MetricsDTO;
 import com.wandern.clients.ServiceStatusDTO;
-import com.wandern.master.DTO.ServiceDetailsDTO;
 import com.wandern.master.DTO.projection.ServiceDetailsProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -68,7 +67,7 @@ public class MasterController {
 
     @GetMapping("/set-down/{deploymentId}")
     public ResponseEntity<Void> setServiceDown(@PathVariable String deploymentId) {
-        ServiceStatusDTO statusUpdate = new ServiceStatusDTO(deploymentId, "DOWN");
+        var statusUpdate = new ServiceStatusDTO(deploymentId, "DOWN");
         masterService.updateServiceStatus(statusUpdate);
         return ResponseEntity.ok().build();
     }

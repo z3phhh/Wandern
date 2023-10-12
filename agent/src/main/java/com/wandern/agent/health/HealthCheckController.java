@@ -25,6 +25,4 @@ public class HealthCheckController {
     public ResponseEntity<Map<String, Status>> getServicesStatus() {
         return ResponseEntity.ok(healthCheckAgent.getServiceStatuses());
     }
-
-    // TODO : сделать вывод расписания HC для каждого сервиса
 }

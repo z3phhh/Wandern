@@ -13,6 +13,8 @@
     </facet>
   </component>
   <component name="SonarLintModuleSettings">
+    <option name="idePathPrefix" value="master" />
+    <option name="projectKey" value="java_app" />
     <option name="uniqueId" value="af8e3dc6-1e9a-4faa-8e40-d962b80bb49c" />
   </component>
 </module>

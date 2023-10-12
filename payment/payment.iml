@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module version="4">
   <component name="SonarLintModuleSettings">
+    <option name="idePathPrefix" value="payment" />
     <option name="uniqueId" value="26e7ec42-41de-46c2-b2a8-8cf29abbf203" />
   </component>
 </module>

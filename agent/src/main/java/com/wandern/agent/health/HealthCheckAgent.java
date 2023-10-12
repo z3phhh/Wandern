@@ -28,7 +28,7 @@ public class HealthCheckAgent {
     public void startMonitoringService(ServiceInfoDTO serviceInfoDTO) {
         ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(() -> {
-            Status status = serviceHealthChecker.checkServiceHealth(serviceInfoDTO);
+            var status = serviceHealthChecker.checkServiceHealth(serviceInfoDTO);
             serviceStatuses.put(serviceInfoDTO, status);
             serviceStatusReporter.sendStatusToMaster(serviceInfoDTO.deploymentId(), status);
         }, 0, healthCheckInterval, TimeUnit.SECONDS);

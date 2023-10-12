@@ -1,6 +1,5 @@
 package com.wandern.agent.health;
 
-import com.wandern.agent.AgentService;
 import com.wandern.clients.ServiceStatusDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class ServiceStatusReporterImpl implements ServiceStatusReporter {
 
-    private static final Logger logger = LoggerFactory.getLogger(AgentService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceStatusReporterImpl.class);
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${master.url}")
@@ -27,8 +26,8 @@ public class ServiceStatusReporterImpl implements ServiceStatusReporter {
     @Override
     public void sendStatusToMaster(String deploymentId, Status status) {
         String targetUrl = masterServiceUrl + "/master/api/v1/services/status/update";
-        ServiceStatusDTO serviceStatus = new ServiceStatusDTO(deploymentId, status.toString());
-        HttpHeaders headers = new HttpHeaders();
+        var serviceStatus = new ServiceStatusDTO(deploymentId, status.toString());
+        var headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<ServiceStatusDTO> request = new HttpEntity<>(serviceStatus, headers);
         try {

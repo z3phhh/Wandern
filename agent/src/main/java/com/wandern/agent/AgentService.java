@@ -41,7 +41,9 @@ public class AgentService {
 
     public void registerServiceInAgent(ServiceInfoDTO serviceInfoDTO) {
         serviceRegistry.registerService(serviceInfoDTO);
-        logger.info("Service with deploymentId '{}' registered successfully in agent.", serviceInfoDTO.deploymentId());
+        if (logger.isInfoEnabled()) {
+            logger.info("Service with deploymentId '{}' registered successfully in agent.", serviceInfoDTO.deploymentId());
+        }
     }
 
     /**
@@ -122,7 +124,7 @@ public class AgentService {
             logger.info("Requesting metrics from service: {}", metricsUrl);
 
             try {
-                MetricsDTO metricsDTO = restTemplate.getForObject(metricsUrl, MetricsDTO.class);
+                var metricsDTO = restTemplate.getForObject(metricsUrl, MetricsDTO.class);
                 logger.info("Received metrics from service {}: {}", metricsUrl, metricsDTO);
 
                 String metricsEndpoint = masterServiceUrl + "/master/api/v1/services/" + service.deploymentId() + "/metrics";

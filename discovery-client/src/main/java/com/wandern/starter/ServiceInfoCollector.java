@@ -15,7 +15,6 @@ import java.net.*;
 import java.util.Enumeration;
 import java.util.UUID;
 
-// TODO: MicroserviceCollectorInfo
 @Component
 public class ServiceInfoCollector implements ApplicationContextAware {
 
@@ -42,7 +41,7 @@ public class ServiceInfoCollector implements ApplicationContextAware {
             String ip = getExternalIpAddress();
             String serviceUrl = "http://" + ip + ":" + port;
             String deploymentUnit = generateShortUUID(12);
-            String shortUUIDForDeploymentId = deploymentUnit.substring(0, 4);
+            var shortUUIDForDeploymentId = deploymentUnit.substring(0, 4);
             String deploymentId = (deploymentPrefix != null ? deploymentPrefix : getMainClassName()) + "-" + shortUUIDForDeploymentId;
             String system = getMainClassName();
 

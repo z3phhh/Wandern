@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -37,7 +36,7 @@ public class MasterService {
      * @return ответ о результате регистрации.
      */
     public ResponseEntity<String> registerService(com.wandern.clients.ServiceInfoDTO serviceInfoDTO) {
-        RegisteredService registeredService = MasterMapper.toEntity(serviceInfoDTO);
+        var registeredService = MasterMapper.toEntity(serviceInfoDTO);
 
         try {
             registeredServiceRepository.save(registeredService);
@@ -62,15 +61,15 @@ public class MasterService {
      */
     @Transactional
     public ResponseEntity<String> saveMetrics(String deploymentId, MetricsDTO metricsDTO) {
-        RegisteredService registeredService = getRegisteredServiceOrThrow(deploymentId);
+        var registeredService = getRegisteredServiceOrThrow(deploymentId);
 
-        Metrics metrics = metricsRepository.findByRegisteredService(registeredService)
+        var metrics = metricsRepository.findByRegisteredService(registeredService)
                 .map(existingMetrics -> {
                     MasterMapper.updateMetricsFromDTO(metricsDTO, existingMetrics);
                     return existingMetrics;
                 })
                 .orElseGet(() -> {
-                    Metrics newMetrics = MasterMapper.toEntity(metricsDTO);
+                    var newMetrics = MasterMapper.toEntity(metricsDTO);
                     newMetrics.setRegisteredService(registeredService);
                     return newMetrics;
                 });
@@ -95,16 +94,6 @@ public class MasterService {
                     return new RuntimeException("RegisteredService not found for deploymentId: " + deploymentId);
                 });
     }
-
-/*    @Transactional
-    public void updateServiceStatus(ServiceStatusDTO statusUpdate) {
-        Optional.ofNullable(statusUpdate)
-                .filter(update -> "DOWN".equals(update.status()))
-                .ifPresent(update -> {
-                    registeredServiceRepository.deleteByDeploymentId(update.deploymentId());
-                    logger.info("Service with deploymentId: {} has been removed due to DOWN status.", update.deploymentId());
-                });
-    }*/
 
     @Transactional
     public void updateServiceStatus(ServiceStatusDTO statusUpdate) {

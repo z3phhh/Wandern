@@ -39,17 +39,13 @@ public class MetricsCollector {
         long freeMemoryMB = getFreeMemory() / (1024 * 1024);
         int totalThreads = threadMXBean.getThreadCount();
 
-        MetricsDTO metricsDTO = new MetricsDTO(
+        return new MetricsDTO(
                 systemLoad,
                 jvmCpuLoad,
                 usedMemoryMB,
                 freeMemoryMB,
                 totalThreads
         );
-
-//        logger.info("Collected Metrics: {}", metricsDTO);
-
-        return metricsDTO;
     }
 
     private double getJvmCpuLoad() {
