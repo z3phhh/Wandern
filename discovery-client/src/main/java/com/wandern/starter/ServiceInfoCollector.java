@@ -95,11 +95,9 @@ public class ServiceInfoCollector implements ApplicationContextAware {
         logger.warn("No suitable IP address found.");
         return null;
     }
-
     public ServiceInfoDTO getServiceInfoData() {
         return serviceInfoDTO;
     }
-
 
 }
 

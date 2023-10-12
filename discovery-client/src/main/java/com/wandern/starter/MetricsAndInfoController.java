@@ -6,10 +6,13 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
@@ -23,10 +26,10 @@ public class MetricsAndInfoController {
     private final RestTemplate restTemplate;
     private final ServiceInfoCollector serviceInfoCollector;
     private final MetricsCollector metricsCollector;
+    private final ApplicationContext appContext;
 
     @Value("${agent.url}")
     private String agentServiceUrl;
-    // вынести в конф
 
     @EventListener(ApplicationReadyEvent.class)
     public void registerService() {
@@ -60,12 +63,17 @@ public class MetricsAndInfoController {
         }
     }
 
-
     @GetMapping("/metrics")
     public ResponseEntity<MetricsDTO> provideMetrics() {
         logger.info("Received request to provide metrics.");
         var metricsDTO = metricsCollector.collectMetrics();
 
         return ResponseEntity.ok(metricsDTO);
+    }
+
+    @PostMapping("/shutdown")
+    public String shutdownApplication() {
+        SpringApplication.exit(appContext, () -> 0);
+        return "Application is shutting down...";
     }
 }
