@@ -1615,3 +1615,31 @@
 2023.10.12 13:00:58 WARN  app[][o.s.a.p.AbstractManagedProcess] Process exited with exit value [es]: 78
 2023.10.12 13:00:58 INFO  app[][o.s.a.SchedulerImpl] Process[es] is stopped
 2023.10.12 13:00:58 INFO  app[][o.s.a.SchedulerImpl] SonarQube is stopped
+2023.10.12 13:02:00 INFO  app[][o.s.a.AppFileSystem] Cleaning or creating temp directory /opt/sonarqube/temp
+2023.10.12 13:02:00 INFO  app[][o.s.a.es.EsSettings] Elasticsearch listening on [HTTP: 127.0.0.1:9001, TCP: 127.0.0.1:44299]
+2023.10.12 13:02:01 INFO  app[][o.s.a.ProcessLauncherImpl] Launch process[[key='es', ipcIndex=1, logFilenamePrefix=es]] from [/opt/sonarqube/elasticsearch]: /opt/sonarqube/elasticsearch/bin/elasticsearch
+2023.10.12 13:02:01 INFO  app[][o.s.a.SchedulerImpl] Waiting for Elasticsearch to be up and running
+2023.10.12 13:02:06 WARN  app[][o.s.a.p.AbstractManagedProcess] Process exited with exit value [es]: 78
+2023.10.12 13:02:06 INFO  app[][o.s.a.SchedulerImpl] Process[es] is stopped
+2023.10.12 13:02:06 INFO  app[][o.s.a.SchedulerImpl] SonarQube is stopped
+2023.10.12 13:03:08 INFO  app[][o.s.a.AppFileSystem] Cleaning or creating temp directory /opt/sonarqube/temp
+2023.10.12 13:03:08 INFO  app[][o.s.a.es.EsSettings] Elasticsearch listening on [HTTP: 127.0.0.1:9001, TCP: 127.0.0.1:34037]
+2023.10.12 13:03:08 INFO  app[][o.s.a.ProcessLauncherImpl] Launch process[[key='es', ipcIndex=1, logFilenamePrefix=es]] from [/opt/sonarqube/elasticsearch]: /opt/sonarqube/elasticsearch/bin/elasticsearch
+2023.10.12 13:03:08 INFO  app[][o.s.a.SchedulerImpl] Waiting for Elasticsearch to be up and running
+2023.10.12 13:03:14 WARN  app[][o.s.a.p.AbstractManagedProcess] Process exited with exit value [es]: 78
+2023.10.12 13:03:14 INFO  app[][o.s.a.SchedulerImpl] Process[es] is stopped
+2023.10.12 13:03:14 INFO  app[][o.s.a.SchedulerImpl] SonarQube is stopped
+2023.10.12 13:04:16 INFO  app[][o.s.a.AppFileSystem] Cleaning or creating temp directory /opt/sonarqube/temp
+2023.10.12 13:04:16 INFO  app[][o.s.a.es.EsSettings] Elasticsearch listening on [HTTP: 127.0.0.1:9001, TCP: 127.0.0.1:40645]
+2023.10.12 13:04:16 INFO  app[][o.s.a.ProcessLauncherImpl] Launch process[[key='es', ipcIndex=1, logFilenamePrefix=es]] from [/opt/sonarqube/elasticsearch]: /opt/sonarqube/elasticsearch/bin/elasticsearch
+2023.10.12 13:04:16 INFO  app[][o.s.a.SchedulerImpl] Waiting for Elasticsearch to be up and running
+2023.10.12 13:04:22 WARN  app[][o.s.a.p.AbstractManagedProcess] Process exited with exit value [es]: 78
+2023.10.12 13:04:22 INFO  app[][o.s.a.SchedulerImpl] Process[es] is stopped
+2023.10.12 13:04:22 INFO  app[][o.s.a.SchedulerImpl] SonarQube is stopped
+2023.10.12 13:05:25 INFO  app[][o.s.a.AppFileSystem] Cleaning or creating temp directory /opt/sonarqube/temp
+2023.10.12 13:05:25 INFO  app[][o.s.a.es.EsSettings] Elasticsearch listening on [HTTP: 127.0.0.1:9001, TCP: 127.0.0.1:36893]
+2023.10.12 13:05:25 INFO  app[][o.s.a.ProcessLauncherImpl] Launch process[[key='es', ipcIndex=1, logFilenamePrefix=es]] from [/opt/sonarqube/elasticsearch]: /opt/sonarqube/elasticsearch/bin/elasticsearch
+2023.10.12 13:05:25 INFO  app[][o.s.a.SchedulerImpl] Waiting for Elasticsearch to be up and running
+2023.10.12 13:05:31 WARN  app[][o.s.a.p.AbstractManagedProcess] Process exited with exit value [es]: 78
+2023.10.12 13:05:31 INFO  app[][o.s.a.SchedulerImpl] Process[es] is stopped
+2023.10.12 13:05:31 INFO  app[][o.s.a.SchedulerImpl] SonarQube is stopped
