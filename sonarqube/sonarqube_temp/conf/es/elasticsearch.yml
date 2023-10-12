@@ -13,7 +13,7 @@ http.host: 127.0.0.1
 path.logs: /opt/sonarqube/logs
 discovery.seed_hosts: 127.0.0.1
 cluster.initial_master_nodes: 127.0.0.1
-transport.port: '45517'
+transport.port: '44125'
 node.master: 'true'
 path.data: /opt/sonarqube/data/es7
 network.host: 127.0.0.1
