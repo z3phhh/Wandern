@@ -1,16 +1,15 @@
-package com.wandern.master.DTO.projection;
+package com.wandern.master.dto;
 
-import com.wandern.clients.ServiceStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
-@AllArgsConstructor
 @Getter
 @Setter
-public class ServiceDetailsProjection {
+@AllArgsConstructor
+@NoArgsConstructor
+public class ServiceDetailsDTO {
     private String deploymentId;
     private String deploymentUnit;
     private String system;
@@ -18,6 +17,6 @@ public class ServiceDetailsProjection {
     private String contextPath;
     private int port;
     private String ip;
-    private ServiceStatus status;
-    private MetricsProjection metrics;
+    private String status;
+    private Metrics2DTO metrics;
 }

@@ -35,6 +35,8 @@ public class RegisteredService {
     )
     private Long id;
 
+    private String programmingLanguage;
+
     @Column(
             name = "deployment_id",
             nullable = false,
@@ -42,15 +44,33 @@ public class RegisteredService {
     )
     private String deploymentId;
 
+
+    @ManyToOne
+    @JoinColumn(
+            name = "node_id",
+            nullable = false,
+            referencedColumnName = "id",
+            foreignKey = @ForeignKey(
+                    name = "fk_node_registered_service"
+            )
+    )
+    private Node node;
+
     @OneToOne(
             mappedBy = "registeredService",
             orphanRemoval = true,
             cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
     )
-    private Metrics metrics;
+    private ResourceMetrics resourceMetrics;
 
-    @Enumerated(EnumType.STRING)
-    private ServiceStatus status;
+    @OneToOne(
+            mappedBy = "registeredService",
+            orphanRemoval = true,
+            cascade = {CascadeType.PERSIST, CascadeType.REMOVE}
+
+    )
+    private HealthMetrics healthMetrics;
+
 
     private String system;
     private String deploymentUnit;
@@ -60,4 +80,7 @@ public class RegisteredService {
     private int port;
     private String ip;
     private LocalDateTime registrationTime;
+//    private LocalDateTime lastHealthCheck;
+
+    // TODO: + lastHealthCheck, + language, + nodeId
 }

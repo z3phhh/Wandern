@@ -1,8 +1,8 @@
 package com.wandern.master;
 
 import com.wandern.clients.ServiceStatus;
-import com.wandern.master.DTO.projection.MetricsProjection;
-import com.wandern.master.DTO.projection.ServiceDetailsProjection;
+import com.wandern.master.dto.projection.MetricsProjection;
+import com.wandern.master.dto.projection.ServiceDetailsProjection;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 

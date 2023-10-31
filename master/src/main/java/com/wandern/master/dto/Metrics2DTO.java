@@ -1,4 +1,4 @@
-package com.wandern.master.DTO;
+package com.wandern.master.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

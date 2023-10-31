@@ -1,13 +1,23 @@
 package com.wandern.starter;
 
 import com.wandern.starter.health.DefaultHealthCheck;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class AutoConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public WebClient webClient() {
+        return WebClient.create();
+    }
 
     @Bean
     @ConditionalOnMissingBean
@@ -23,8 +33,14 @@ public class AutoConfiguration {
     @Bean
     public MetricsAndInfoController discoveryController(RestTemplate restTemplate,
                                                         ServiceInfoCollector serviceInfoCollector,
-                                                        MetricsCollector metricsCollector) {
-        return new MetricsAndInfoController(restTemplate, serviceInfoCollector, metricsCollector);
+                                                        MetricsCollector metricsCollector,
+                                                        ApplicationContext appContext) {
+
+        return new MetricsAndInfoController(
+                restTemplate,
+                serviceInfoCollector,
+                metricsCollector,
+                appContext);
     }
 
     @Bean

@@ -43,7 +43,7 @@ server:
   servlet:
     context-path: /master
 deployment:
-  prefix: Mr.agent
+  prefix: Mr.agentInfo
 ```
 
 ### Настройки для агента:
@@ -53,14 +53,14 @@ deployment:
 | Parameter                             | Description                                   | Default   |
 |---------------------------------------|-----------------------------------------------|-----------|
 | `healthcheck.interval`                | Интервал опроса сервисов агентом (в секундах) | 30 секунд |
-| `metrics.collection.interval.seconds` | Интервал между сбором метрик (в секундах)     | 30 секунд |
+| `resourceMetrics.collection.interval.seconds` | Интервал между сбором метрик (в секундах)     | 30 секунд |
 
 Пример:
 
 ```yaml
 healthcheck:
   interval: 30
-metrics:
+resourceMetrics:
   collection:
     interval:
       seconds: 30

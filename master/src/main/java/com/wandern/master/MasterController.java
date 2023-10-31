@@ -1,8 +1,7 @@
 package com.wandern.master;
 
 import com.wandern.clients.MetricsDTO;
-import com.wandern.clients.ServiceStatusDTO;
-import com.wandern.master.DTO.projection.ServiceDetailsProjection;
+import com.wandern.master.dto.projection.ServiceDetailsProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,10 +27,10 @@ public class MasterController {
      * @param serviceInfoDTO информация о регистрируемом сервисе.
      * @return ответ о результате регистрации.
      */
-    @PostMapping("/register")
+/*    @PostMapping("/register")
     public ResponseEntity<String> registerService(@RequestBody com.wandern.clients.ServiceInfoDTO serviceInfoDTO) {
         return masterService.registerService(serviceInfoDTO);
-    }
+    }*/
 
     /**
      * Сохраняет метрики для указанного сервиса.
@@ -46,11 +45,11 @@ public class MasterController {
         return masterService.saveMetrics(deploymentId, metricsDTO);
     }
 
-    @PostMapping("/status/update")
+/*    @PostMapping("/status/update")
     public ResponseEntity<Void> updateServiceStatus(@RequestBody ServiceStatusDTO statusUpdate) {
         masterService.updateServiceStatus(statusUpdate);
         return ResponseEntity.ok().build();
-    }
+    }*/
 
     // with jdbc template
     @GetMapping
@@ -65,10 +64,10 @@ public class MasterController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/set-down/{deploymentId}")
+/*    @GetMapping("/set-down/{deploymentId}")
     public ResponseEntity<Void> setServiceDown(@PathVariable String deploymentId) {
         var statusUpdate = new ServiceStatusDTO(deploymentId, "DOWN");
         masterService.updateServiceStatus(statusUpdate);
         return ResponseEntity.ok().build();
-    }
+    }*/
 }

@@ -6,15 +6,21 @@ server:
 spring:
   application:
     name: agent
+  kafka:
+    bootstrap-servers: localhost:9092
 
 master:
   url: http://192.168.100.2:9999
   registration:
     retry:
-      interval: 15
+      interval: 30000
 
 healthcheck:
   interval: 10
+
+liveness:
+  probe:
+    interval: 30000
 
 metrics:
   collection:
@@ -23,9 +29,3 @@ metrics:
 
 deployment:
   prefix: mragent
-
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: *

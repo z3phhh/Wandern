@@ -11,6 +11,8 @@ spring:
     password: 'password'
     url: jdbc:postgresql://localhost:5432/master
     username: 'wandern'
+  kafka:
+    bootstrap-servers: localhost:9092
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -20,5 +22,12 @@ spring:
         format_sql: true
     show-sql: false
 
-  flyway:
-    baseline-on-migrate: true
+
+kafka:
+  topic:
+    node-metrics: node-metrics-topic
+  group:
+    id: node-metrics-group
+
+#  flyway:
+#    baseline-on-migrate: true

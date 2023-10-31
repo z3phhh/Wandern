@@ -1,6 +1,7 @@
 package com.wandern.master;
 
-import com.wandern.master.DTO.projection.ServiceDetailsProjection;
+import com.wandern.clients.NodeMetricsDTO;
+import com.wandern.master.dto.projection.ServiceDetailsProjection;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -14,6 +15,21 @@ public class MasterJDBCDataAccessService {
 
     private final JdbcTemplate jdbcTemplate;
     private final MasterRowMapper masterRowMapper;
+
+
+/*
+    public void saveMetricsWithJdbcTemplate(NodeMetricsDTO metricsDTO) {
+        jdbcTemplate.update("INSERT INTO node (nodeIp, totalServices, activeServices, inactiveServices) VALUES (?, ?, ?, ?)",
+                metricsDTO.getNodeIp(), metricsDTO.getTotalServices(), metricsDTO.getActiveServices(), metricsDTO.getInactiveServices());
+
+        jdbcTemplate.update("INSERT INTO node_metrics (systemLoad, jvmCpuLoad, ...) VALUES (?, ?, ...)",
+                metricsDTO
+                        .nodeMetrics()
+                        .systemLoad(), metricsDTO
+                        .nodeMetrics()
+                        .jvmCpuLoad(), ...);
+    }
+*/
 
     public List<ServiceDetailsProjection> selectAllServiceDetails() {
         var sql = """

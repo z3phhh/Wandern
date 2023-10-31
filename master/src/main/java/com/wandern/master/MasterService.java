@@ -1,22 +1,24 @@
 package com.wandern.master;
 
 import com.wandern.clients.MetricsDTO;
-import com.wandern.clients.ServiceStatus;
-import com.wandern.clients.ServiceStatusDTO;
-import com.wandern.master.entity.Metrics;
+import com.wandern.clients.NodeMetricsDTO;
+import com.wandern.master.entity.Node;
+import com.wandern.master.entity.NodeMetrics;
 import com.wandern.master.entity.RegisteredService;
-import com.wandern.master.repository.MetricsRepository;
+import com.wandern.master.repository.NodeMetricsRepository;
+import com.wandern.master.repository.NodeRepository;
+import com.wandern.master.repository.ResourceMetricsRepository;
 import com.wandern.master.repository.RegisteredServiceRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 
 @Service
@@ -26,28 +28,41 @@ public class MasterService {
     private static final Logger logger = LoggerFactory.getLogger(MasterService.class);
 
     private final RegisteredServiceRepository registeredServiceRepository;
-    private final MetricsRepository metricsRepository;
+    private final ResourceMetricsRepository resourceMetricsRepository;
 
-    /**
-     * Регистрирует сервис в глобальной топологии.
-     * Преобразует DTO в сущность и сохраняет ее в базе данных.
-     *
-     * @param serviceInfoDTO информация о регистрируемом сервисе.
-     * @return ответ о результате регистрации.
-     */
-    public ResponseEntity<String> registerService(com.wandern.clients.ServiceInfoDTO serviceInfoDTO) {
-        var registeredService = MasterMapper.toEntity(serviceInfoDTO);
+    private final MasterMapper masterMapper;
+    private final NodeRepository nodeRepository;
+    private final NodeMetricsRepository nodeMetricsRepository;
 
-        try {
-            registeredServiceRepository.save(registeredService);
-            logger.info("Service registered successfully with ID: {}", registeredService.getDeploymentId());
-            return ResponseEntity.ok("Service registered successfully in master.");
-        } catch (Exception e) {
-            logger.error("Error registering service: {}", serviceInfoDTO, e);
-            return ResponseEntity
-                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to register service in master.");
-        }
+/*    @KafkaListener(
+            topics = "${kafka.topic.node-metrics}",
+            groupId = "${kafka.group.id}",
+            containerFactory = "nodeMetricsDTOKafkaListenerContainerFactory")
+    public void listenNodeMetrics(NodeMetricsDTO nodeMetricsDTO) {
+        var node = masterMapper.toNode(nodeMetricsDTO);
+        nodeRepository.save(node);
+
+        var nodeMetrics = masterMapper.toNodeMetrics(nodeMetricsDTO, node);
+        nodeMetricsRepository.save(nodeMetrics);
+    }*/
+
+    @Transactional
+    @KafkaListener(
+            topics = "${kafka.topic.node-metrics}",
+            groupId = "${kafka.group.id}",
+            containerFactory = "nodeMetricsDTOKafkaListenerContainerFactory")
+    public void listenNodeMetrics(NodeMetricsDTO nodeMetricsDTO) {
+        var node = nodeRepository.findByNodeIp(nodeMetricsDTO.nodeIp())
+                .orElseGet(() -> masterMapper.toNode(nodeMetricsDTO));
+
+        updateNodeWithData(node, nodeMetricsDTO);
+        nodeRepository.save(node);
+
+        var nodeMetrics = nodeMetricsRepository.findByNode(node)
+                .orElseGet(() -> masterMapper.toNodeMetrics(nodeMetricsDTO.nodeMetrics(), node));
+
+        updateNodeMetricsWithData(nodeMetrics, nodeMetricsDTO.nodeMetrics());
+        nodeMetricsRepository.save(nodeMetrics);
     }
 
     /**
@@ -63,10 +78,10 @@ public class MasterService {
     public ResponseEntity<String> saveMetrics(String deploymentId, MetricsDTO metricsDTO) {
         var registeredService = getRegisteredServiceOrThrow(deploymentId);
 
-        var metrics = metricsRepository.findByRegisteredService(registeredService)
-                .map(existingMetrics -> {
-                    MasterMapper.updateMetricsFromDTO(metricsDTO, existingMetrics);
-                    return existingMetrics;
+        var metrics = resourceMetricsRepository.findByRegisteredService(registeredService)
+                .map(existingResourceMetrics -> {
+                    MasterMapper.updateMetricsFromDTO(metricsDTO, existingResourceMetrics);
+                    return existingResourceMetrics;
                 })
                 .orElseGet(() -> {
                     var newMetrics = MasterMapper.toEntity(metricsDTO);
@@ -76,7 +91,7 @@ public class MasterService {
         metrics.setTimestamp(LocalDateTime.now());
 
         try {
-            metricsRepository.save(metrics);
+            resourceMetricsRepository.save(metrics);
             logger.info("Metrics saved successfully for deploymentId: {}", deploymentId);
             return ResponseEntity.ok("Metrics saved successfully.");
         } catch (Exception e) {
@@ -95,7 +110,25 @@ public class MasterService {
                 });
     }
 
-    @Transactional
+    private void updateNodeWithData(Node node, NodeMetricsDTO dto) {
+        node.setNodeIp(dto.nodeIp());
+        node.setNodeId(dto.nodeId());
+        node.setTotalServices((int) dto.totalServices());
+        node.setActiveServices((int) dto.activeServices());
+        node.setInactiveServices((int) dto.inactiveServices());
+        node.setLastUpdate(LocalDateTime.now());
+    }
+
+    private void updateNodeMetricsWithData(NodeMetrics nodeMetrics, MetricsDTO metrics) {
+        nodeMetrics.setSystemLoad(metrics.systemLoad());
+        nodeMetrics.setJvmCpuLoad(metrics.jvmCpuLoad());
+        nodeMetrics.setUsedMemoryMB(metrics.usedMemoryMB());
+        nodeMetrics.setFreeMemoryMB(metrics.freeMemoryMB());
+        nodeMetrics.setTotalThreads(metrics.totalThreads());
+        nodeMetrics.setLastUpdate(LocalDateTime.now());
+    }
+
+/*    @Transactional
     public void updateServiceStatus(ServiceStatusDTO statusUpdate) {
         Optional.ofNullable(statusUpdate)
                 .filter(update -> "DOWN".equals(update.status()))
@@ -108,5 +141,5 @@ public class MasterService {
                                 logger.info("Service with deploymentId: {} has been set to DOWN status.", update.deploymentId());
                             });
                 });
-    }
+    }*/
 }

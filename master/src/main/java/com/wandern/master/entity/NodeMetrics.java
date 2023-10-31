@@ -1,48 +1,43 @@
 package com.wandern.master.entity;
 
+import com.wandern.clients.NodeMetricsDTO;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
+@Entity
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "metrics_service")
-public class Metrics {
+@Table(name = "node_metrics")
+public class NodeMetrics {
 
     @Id
     @SequenceGenerator(
-            name = "metrics_service_id_seq",
-            sequenceName = "metrics_service_id_seq",
+            name = "node_metrics_id_seq",
+            sequenceName = "node_metrics_id_seq",
             allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "metrics_service_id_seq"
-    )
-    @Column(
-            name = "id",
-            updatable = false
+            generator = "node_metrics_id_seq"
     )
     private Long id;
 
-    @OneToOne(
-            cascade = CascadeType.ALL,
-            fetch = FetchType.EAGER)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(
-            name = "registered_service_id",
+            name = "node_id",
             referencedColumnName = "id",
             foreignKey = @ForeignKey(
-                    name = "fk_metrics_service_registered_service"
+                    name = "fk_node_node_metrics"
             )
     )
-    private RegisteredService registeredService;
+    private Node node;
 
-    private LocalDateTime timestamp;
+    private LocalDateTime lastUpdate;
 
     private double systemLoad;
     private double jvmCpuLoad;
@@ -53,4 +48,5 @@ public class Metrics {
     @Column(name = "free_memory_mb")
     private long freeMemoryMB;
     private int totalThreads;
+
 }

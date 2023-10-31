@@ -1,4 +1,4 @@
-package com.wandern.master.DTO.projection;
+package com.wandern.master.dto.projection;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

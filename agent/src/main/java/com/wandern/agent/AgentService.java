@@ -1,24 +1,33 @@
 package com.wandern.agent;
 
-import com.wandern.agent.registry.ServiceRegistry;
+import com.wandern.agent.data.ServiceInfoDataStore;
+import com.wandern.agent.data.ServiceMetricsDataStore;
 import com.wandern.clients.MetricsDTO;
 import com.wandern.clients.ServiceInfoDTO;
+import com.wandern.model.ServiceInfo;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
-import java.net.ConnectException;
-import java.util.Collection;
+import java.time.Duration;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * Сервис, предоставляющий функциональность для работы с агентом.
@@ -29,22 +38,106 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class AgentService {
 
     private static final Logger logger = LoggerFactory.getLogger(AgentService.class);
-    private final ScheduledExecutorService retryExecutor = Executors.newSingleThreadScheduledExecutor();
-    private final AtomicInteger retryCount = new AtomicInteger(0);
-    private final Map<String, ScheduledFuture<?>> retryFutures = new ConcurrentHashMap<>();
 
     @Value("${master.url}")
     private String masterServiceUrl;
 
-    private final RestTemplate restTemplate;
-    private final ServiceRegistry serviceRegistry;
+    @Value("${master.registration.retry.interval}")
+    private Long retryInterval;
 
-    public void registerServiceInAgent(ServiceInfoDTO serviceInfoDTO) {
+    private final WebClient webClient;
+    private final ServiceInfoDataStore serviceInfoMap;
+    private final ServiceMetricsDataStore serviceMetricsMap;
+    private final AgentMapper agentMapper;
+
+    private final KafkaTemplate<String, MetricsDTO> kafkaTemplate;
+
+    public void registerService(ServiceInfoDTO serviceInfoDTO) {
+        var serviceInfo = agentMapper.fromDTO(serviceInfoDTO);
+        serviceInfoMap.saveServiceInfo(serviceInfo.deploymentId(), serviceInfo);
+
+        registerInMaster(serviceInfo);
+    }
+
+    private void registerInMaster(ServiceInfo serviceInfo) {
+        webClient.post()
+                .uri(masterServiceUrl + "/master/api/v1/services/register")
+                .body(BodyInserters.fromValue(serviceInfo))
+                .retrieve()
+                .bodyToMono(Void.class)
+                .doOnSuccess(response -> logger.info("Successfully registered service with deploymentId: {}", serviceInfo.deploymentId()))
+                .publishOn(Schedulers.boundedElastic())
+                .doOnError(error -> {
+                    logger.error("Failed to register service with deploymentId: {}. Retrying in {} milliseconds...", serviceInfo.deploymentId(), retryInterval);
+
+                    // Start a retry after a delay
+                    Mono.delay(Duration.ofMillis(retryInterval))
+                            .subscribe(next -> registerInMaster(serviceInfo));
+                })
+                .subscribe();
+    }
+
+    public List<ServiceInfoDTO> getAllServices() {
+        return serviceInfoMap.getAllServices().stream()
+                .map(agentMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public Map<String, MetricsDTO> getAllServiceMetrics() {
+        return serviceMetricsMap.getAllMetrics().entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> agentMapper.toDTO(entry.getValue())
+                ));
+    }
+
+    @Scheduled(fixedDelay = 10000)
+    public void collectAndSendMetrics() {
+        logger.info("Starting the metrics collection process...");
+
+        serviceInfoMap.getAllServices()
+                .forEach(serviceInfo -> fetchMetrics(serviceInfo)
+                        .doOnNext(fetchedMetrics -> {
+                            var metrics = agentMapper.fromDTO(fetchedMetrics);
+                            serviceMetricsMap.saveServiceMetrics(serviceInfo.deploymentId(), metrics);
+                            logger.info("Metrics collected and saved for service: {}", serviceInfo.deploymentId());
+
+                            // Sending to Kafka
+                            kafkaTemplate.send("metrics-topic", fetchedMetrics);
+                            logger.info("Metrics sent to Kafka for service: {}", serviceInfo.deploymentId());
+                        })
+                        .doOnError(error -> logger.error("Error occurred while processing metrics for service: {}",
+                                serviceInfo.deploymentId(), error))
+                        .subscribe());
+
+        logger.info("Metrics collection process completed.");
+    }
+
+    private Mono<MetricsDTO> fetchMetrics(ServiceInfo serviceInfo) {
+        var metricsEndpoint = serviceInfo.serviceUrl() + serviceInfo.contextPath() + "/metrics";
+
+        logger.info("Starting to fetch metrics for service with deployment ID: {}. URL: {}",
+                serviceInfo.deploymentId(), metricsEndpoint);
+
+        return webClient.get()
+                .uri(metricsEndpoint)
+                .retrieve()
+                .bodyToMono(MetricsDTO.class)
+                .doOnNext(dto -> logger.info("Successfully fetched metrics deployment ID: {}", serviceInfo.deploymentId()))
+                .doOnError(e -> logger.error("Error while fetching metrics deployment ID: {}", serviceInfo.deploymentId(), e))
+                .onErrorResume(e -> {
+                    logger.warn("Resuming after error by returning an empty Mono for deployment ID: {}", serviceInfo.deploymentId());
+                    return Mono.empty();
+                });
+    }
+
+///////////
+/*    public void registerServiceInAgent(ServiceInfoDTO serviceInfoDTO) {
         serviceRegistry.registerService(serviceInfoDTO);
         if (logger.isInfoEnabled()) {
             logger.info("Service with deploymentId '{}' registered successfully in agent.", serviceInfoDTO.deploymentId());
         }
-    }
+    }*/
 
     /**
      * Пытается зарегистрировать указанный сервис в мастер-сервисе.
@@ -54,7 +147,7 @@ public class AgentService {
      * @param serviceInfoDTO Информация о сервисе для регистрации.
      * @see #scheduleRetry(ServiceInfoDTO) Метод для планирования повторной попытки регистрации.
      */
-    public void registerServiceInMaster(ServiceInfoDTO serviceInfoDTO) {
+/*    public void registerServiceInMaster(ServiceInfoDTO serviceInfoDTO) {
         try {
             restTemplate.postForEntity(masterServiceUrl + "/master/api/v1/services/register", serviceInfoDTO, Void.class);
             logger.info("Service with deploymentId '{}' registered successfully in master.", serviceInfoDTO.deploymentId());
@@ -77,13 +170,13 @@ public class AgentService {
         }
     }
 
-    /**
+    *//**
      * Планирует повторную попытку регистрации указанного сервиса в мастер-сервисе.
      * Повторная попытка планируется с фиксированным интервалом, который можно настроить в конфигурационном файле.
      *
      * @param serviceInfoDTO Информация о сервисе для которого планируется повторная попытка регистрации.
      * @see #registerServiceInMaster(ServiceInfoDTO) Основной метод регистрации сервиса.
-     */
+     *//*
     @Value("${master.registration.retry.interval}")
     private long retryInterval;
     private void scheduleRetry(ServiceInfoDTO serviceInfoDTO) {
@@ -103,9 +196,9 @@ public class AgentService {
         }
     }
 
-    /**
+    *//**
      * Собирает метрики от всех зарегистрированных сервисов и отправляет их в мастер-сервис.
-     */
+     *//*
 
     @Value("${metrics.collection.interval.seconds}")
     private long metricsCollectionIntervalSeconds;
@@ -147,5 +240,6 @@ public class AgentService {
                 logger.error("Failed to send metrics to master for service: {}.", metricsUrl, e);
             }
         }
-    }
+    }*/
+
 }
