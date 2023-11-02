@@ -9,6 +9,7 @@ import com.wandern.master.repository.NodeMetricsRepository;
 import com.wandern.master.repository.NodeRepository;
 import com.wandern.master.repository.ResourceMetricsRepository;
 import com.wandern.master.repository.RegisteredServiceRepository;
+import com.wandern.model.ServiceInfo;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,18 +35,6 @@ public class MasterService {
     private final NodeRepository nodeRepository;
     private final NodeMetricsRepository nodeMetricsRepository;
 
-/*    @KafkaListener(
-            topics = "${kafka.topic.node-metrics}",
-            groupId = "${kafka.group.id}",
-            containerFactory = "nodeMetricsDTOKafkaListenerContainerFactory")
-    public void listenNodeMetrics(NodeMetricsDTO nodeMetricsDTO) {
-        var node = masterMapper.toNode(nodeMetricsDTO);
-        nodeRepository.save(node);
-
-        var nodeMetrics = masterMapper.toNodeMetrics(nodeMetricsDTO, node);
-        nodeMetricsRepository.save(nodeMetrics);
-    }*/
-
     @Transactional
     @KafkaListener(
             topics = "${kafka.topic.node-metrics}",
@@ -64,6 +53,24 @@ public class MasterService {
         updateNodeMetricsWithData(nodeMetrics, nodeMetricsDTO.nodeMetrics());
         nodeMetricsRepository.save(nodeMetrics);
     }
+
+/*    public void registerService(ServiceInfo serviceInfo) {
+        var node = nodeRepository.findByNodeIp(serviceInfo.ip())
+                .orElseThrow(() -> new RuntimeException("Node not found with IP: " + serviceInfo.ip()));
+
+        RegisteredService serviceInfoEntity = masterMapper.toServiceInfoEntity(serviceInfo, node);
+        registeredServiceRepository.save(serviceInfoEntity);
+    }*/
+
+    public void registerService(ServiceInfo serviceInfo) {
+        nodeRepository.findByNodeIp(serviceInfo.ip())
+                .map(node -> {
+                    RegisteredService serviceInfoEntity = masterMapper.toServiceInfoEntity(serviceInfo, node);
+                    return registeredServiceRepository.save(serviceInfoEntity);
+                })
+                .orElseThrow(() -> new RuntimeException("Node not found with IP: " + serviceInfo.ip()));
+    }
+
 
     /**
      * Сохраняет метрики для указанного сервиса.

@@ -1,5 +1,4 @@
 server:
-  address: 0.0.0.0
   port: 8081
   servlet:
     context-path: /ctx
@@ -10,7 +9,9 @@ spring:
     bootstrap-servers: localhost:9092
 
 master:
-  url: http://192.168.100.2:9999
+  url: http://172.18.0.1:9999
+#  url: http://192.168.100.2:9999
+#  url: http://localhost:9999
   registration:
     retry:
       interval: 30000

@@ -1,31 +1,36 @@
 package com.wandern.agent.node;
 
+import com.wandern.agent.AgentService;
 import com.wandern.agent.data.LivenessDataStore;
 import com.wandern.agent.data.ServiceMetricsDataStore;
 import com.wandern.clients.MetricsDTO;
 import com.wandern.clients.NodeMetricsDTO;
 import com.wandern.model.ServiceMetrics;
+import com.wandern.starter.ServiceInfoCollector;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.Collection;
+import java.util.Enumeration;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
 public class NodeService {
 
+    private static final Logger logger = LoggerFactory.getLogger(NodeService.class);
+
     private final LivenessDataStore livenessDataStore;
     private final ServiceMetricsDataStore serviceMetricsMap;
     private final KafkaTemplate<String, NodeMetricsDTO> kafkaTemplate;
 
     private final String nodeId;
-    private final String nodeIp;
 
     private NodeMetricsDTO latestMetrics;
 
@@ -37,16 +42,15 @@ public class NodeService {
         this.serviceMetricsMap = serviceMetricsMap;
         this.kafkaTemplate = kafkaTemplate;
         this.nodeId = generateNodeId();
-        this.nodeIp = resolveNodeIp();
     }
 
     @Scheduled(fixedRate = 60000)
-    public void updateAndSendMetrics() {
+    public void updateAndSendMetrics() throws SocketException {
         latestMetrics = calculateMetricsNode();
         sendMetricsToKafka(latestMetrics);
     }
 
-    public NodeMetricsDTO calculateMetricsNode() {
+    public NodeMetricsDTO calculateMetricsNode() throws SocketException {
         // Calculating service counts
         long totalServices = livenessDataStore.getAllLivenessStatuses().size();
         long activeServices = livenessDataStore.getAllLivenessStatuses().values().stream()
@@ -56,7 +60,7 @@ public class NodeService {
 
         // Collecting aggregated metrics
         MetricsDTO aggregatedMetrics = calculateAggregateMetrics();
-
+        var nodeIp = ServiceInfoCollector.getExternalIpAddress();
         return new NodeMetricsDTO(
                 nodeId,
                 nodeIp,
@@ -122,6 +126,7 @@ public class NodeService {
             return "unknown";
         }
     }
+
 
     private void sendMetricsToKafka(NodeMetricsDTO nodeMetricsDTO) {
         kafkaTemplate.send("node-metrics-topic", nodeMetricsDTO);

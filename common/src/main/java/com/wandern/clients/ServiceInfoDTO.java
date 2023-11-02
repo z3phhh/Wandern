@@ -2,6 +2,8 @@ package com.wandern.clients;
 
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record ServiceInfoDTO(
     String deploymentId,
@@ -11,6 +13,8 @@ public record ServiceInfoDTO(
     String contextPath,
     int port,
     String ip,
-    ServiceStatus status
+    ServiceStatus status,
+    String programmingLanguage,
+    LocalDateTime registrationTime
 ) {
 }

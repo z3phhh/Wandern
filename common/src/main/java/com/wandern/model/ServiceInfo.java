@@ -3,6 +3,8 @@ package com.wandern.model;
 import com.wandern.clients.ServiceStatus;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record ServiceInfo(
     String deploymentId,
@@ -12,5 +14,7 @@ public record ServiceInfo(
     String contextPath,
     int port,
     String ip,
-    ServiceStatus status
+    ServiceStatus status,
+    String programmingLanguage,
+    LocalDateTime registrationTime
 ) {}

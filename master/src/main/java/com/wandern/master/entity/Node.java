@@ -29,7 +29,6 @@ public class Node {
     )
     private Long id;
 
-
     private String nodeIp;
     private String nodeId;
     private Integer totalServices;

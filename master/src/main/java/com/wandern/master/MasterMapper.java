@@ -7,6 +7,7 @@ import com.wandern.master.entity.Node;
 import com.wandern.master.entity.NodeMetrics;
 import com.wandern.master.entity.ResourceMetrics;
 import com.wandern.master.entity.RegisteredService;
+import com.wandern.model.ServiceInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -68,6 +69,21 @@ public class MasterMapper {
                 .freeMemoryMB(metrics.freeMemoryMB())
                 .totalThreads(metrics.totalThreads())
                 .lastUpdate(LocalDateTime.now())
+                .build();
+    }
+
+    public RegisteredService toServiceInfoEntity(ServiceInfo serviceInfo, Node node) {
+        return RegisteredService.builder()
+                .deploymentId(serviceInfo.deploymentId())
+                .deploymentUnit(serviceInfo.deploymentUnit())
+                .system(serviceInfo.system())
+                .serviceUrl(serviceInfo.serviceUrl())
+                .contextPath(serviceInfo.contextPath())
+                .port(serviceInfo.port())
+                .ip(serviceInfo.ip())
+                .programmingLanguage(serviceInfo.programmingLanguage())
+                .registrationTime(serviceInfo.registrationTime())
+                .node(node)
                 .build();
     }
 }

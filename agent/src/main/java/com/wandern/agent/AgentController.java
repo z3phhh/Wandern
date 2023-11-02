@@ -30,43 +30,4 @@ public class AgentController {
         return agentService.getAllServiceMetrics();
     }
 
-/*    @GetMapping("/statuses")
-    public Map<String, LivenessStatus> getAllServiceStatuses() {
-        return healthCheckService.getAllServiceStatuses();
-    }
-
-    @GetMapping("/status")
-    public LivenessStatus getServiceStatus(@RequestParam String serviceEndpoint) {
-        return healthCheckService.getServiceStatus(serviceEndpoint);
-    }*/
-
-
-    /////////////////////
-/*    @PostMapping("/register")
-    public ResponseEntity<String> registerAndMonitorService(@RequestBody ServiceInfoDTO serviceInfoDTO) {
-        agentService.registerServiceInAgent(serviceInfoDTO);
-        healthCheckAgent.startMonitoringService(serviceInfoDTO);
-        agentService.registerServiceInMaster(serviceInfoDTO);
-        return ResponseEntity.ok("Service registered successfully in agent and master.");
-    }*/
-
-    /**
-     * Возвращает список всех зарегистрированных сервисов.
-     *
-     * @return Ответ с коллекцией зарегистрированных сервисов.
-     */
-/*    @GetMapping("/services")
-    public ResponseEntity<Collection<ServiceInfoDTO>> getAllRegisteredServices() {
-        return ResponseEntity.ok(serviceRegistry.getAllServices());
-    }*/
-
-    /**
-     * Возвращает мапу состояния здоровья всех зарегистрированных сервисов.
-     *
-     * @return Ответ с картой состояния здоровья сервисов.
-     */
-/*    @GetMapping("/services-health") // not work
-    public ResponseEntity<Map<String, HealthInfo>> getServicesHealth() {
-        return ResponseEntity.ok(serviceHealthRegistry.getAllServiceHealthInfo());
-    }*/
 }

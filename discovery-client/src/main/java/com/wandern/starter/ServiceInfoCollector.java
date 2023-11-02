@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import java.net.*;
+import java.time.LocalDateTime;
 import java.util.Enumeration;
 import java.util.UUID;
 
@@ -41,6 +42,8 @@ public class ServiceInfoCollector implements ApplicationContextAware {
             String ip = getExternalIpAddress();
             String serviceUrl = "http://" + ip + ":" + port;
             String deploymentUnit = generateShortUUID(12);
+            var registrationTime = LocalDateTime.now();
+            var programmingLanguage = "Java";
             var shortUUIDForDeploymentId = deploymentUnit.substring(0, 4);
             String deploymentId = (deploymentPrefix != null ? deploymentPrefix : getMainClassName()) + "-" + shortUUIDForDeploymentId;
             String system = getMainClassName();
@@ -53,7 +56,9 @@ public class ServiceInfoCollector implements ApplicationContextAware {
                     contextPath,
                     port,
                     ip,
-                    ServiceStatus.UP
+                    ServiceStatus.UP,
+                    programmingLanguage,
+                    registrationTime
             );
 
         } catch (SocketException e) {
@@ -75,7 +80,7 @@ public class ServiceInfoCollector implements ApplicationContextAware {
         this.applicationContext = applicationContext;
     }
 
-    private String getExternalIpAddress() throws SocketException {
+    public static String getExternalIpAddress() throws SocketException {
         Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
         while (interfaces.hasMoreElements()) {
             NetworkInterface iface = interfaces.nextElement();
@@ -95,6 +100,7 @@ public class ServiceInfoCollector implements ApplicationContextAware {
         logger.warn("No suitable IP address found.");
         return null;
     }
+
     public ServiceInfoDTO getServiceInfoData() {
         return serviceInfoDTO;
     }

@@ -54,9 +54,9 @@ public class AgentService {
 
     public void registerService(ServiceInfoDTO serviceInfoDTO) {
         var serviceInfo = agentMapper.fromDTO(serviceInfoDTO);
-        serviceInfoMap.saveServiceInfo(serviceInfo.deploymentId(), serviceInfo);
+        serviceInfoMap.saveServiceInfo(serviceInfo.deploymentId(), serviceInfo); // save in agent memory
 
-        registerInMaster(serviceInfo);
+        registerInMaster(serviceInfo); // send to master bd
     }
 
     private void registerInMaster(ServiceInfo serviceInfo) {
@@ -65,17 +65,17 @@ public class AgentService {
                 .body(BodyInserters.fromValue(serviceInfo))
                 .retrieve()
                 .bodyToMono(Void.class)
-                .doOnSuccess(response -> logger.info("Successfully registered service with deploymentId: {}", serviceInfo.deploymentId()))
-                .publishOn(Schedulers.boundedElastic())
-                .doOnError(error -> {
-                    logger.error("Failed to register service with deploymentId: {}. Retrying in {} milliseconds...", serviceInfo.deploymentId(), retryInterval);
-
-                    // Start a retry after a delay
-                    Mono.delay(Duration.ofMillis(retryInterval))
-                            .subscribe(next -> registerInMaster(serviceInfo));
-                })
+                .doOnSuccess(response ->
+                        logger.info("Successfully registered service with deploymentId: {}", serviceInfo.deploymentId()))
+                .doOnError(error ->
+                        logger.error("Failed to register service with deploymentId: {}. Error: {}",
+                                serviceInfo.deploymentId(), error.getMessage()))
+                .onErrorResume(error ->
+                        Mono.delay(Duration.ofMillis(retryInterval)).then(Mono.fromRunnable(() ->
+                                registerInMaster(serviceInfo))))
                 .subscribe();
     }
+
 
     public List<ServiceInfoDTO> getAllServices() {
         return serviceInfoMap.getAllServices().stream()

@@ -21,6 +21,8 @@ public class AgentMapper {
                 .port(DTO.port())
                 .ip(DTO.ip())
                 .status(DTO.status())
+                .programmingLanguage(DTO.programmingLanguage())
+                .registrationTime(DTO.registrationTime())
                 .build();
     }
 
@@ -34,6 +36,8 @@ public class AgentMapper {
                 .port(info.port())
                 .ip(info.ip())
                 .status(info.status())
+                .programmingLanguage(info.programmingLanguage())
+                .registrationTime(info.registrationTime())
                 .build();
     }
 

@@ -1,5 +1,4 @@
 server:
-  address: 0.0.0.0
   servlet:
     context-path: /master
   port: 9999

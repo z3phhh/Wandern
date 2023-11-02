@@ -2,6 +2,7 @@ package com.wandern.master;
 
 import com.wandern.clients.MetricsDTO;
 import com.wandern.master.dto.projection.ServiceDetailsProjection;
+import com.wandern.model.ServiceInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,10 +28,11 @@ public class MasterController {
      * @param serviceInfoDTO информация о регистрируемом сервисе.
      * @return ответ о результате регистрации.
      */
-/*    @PostMapping("/register")
-    public ResponseEntity<String> registerService(@RequestBody com.wandern.clients.ServiceInfoDTO serviceInfoDTO) {
-        return masterService.registerService(serviceInfoDTO);
-    }*/
+    @PostMapping("/register")
+    public ResponseEntity<Void> registerService(@RequestBody ServiceInfo serviceInfo) {
+        masterService.registerService(serviceInfo);
+        return ResponseEntity.ok().build();
+    }
 
     /**
      * Сохраняет метрики для указанного сервиса.
